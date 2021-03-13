@@ -1,0 +1,483 @@
+---
+title: "SAC Bachtel Analysen Anmeldungen & Ausschreibungen"
+author: "Lorenz Biberstein, Tourenchef Wandern & Schneeschuhe"
+date: "Version vom `r format(Sys.Date(), '%d %B %Y')`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    toc: yes
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    df_print: paged
+lang: de-DE
+---
+
+```{r global setup, include = FALSE}
+# global options für alle Abbildungen: 50% Breite und Ausrichtung zentriert
+knitr::opts_chunk$set(
+  out.width = "50%", 
+  fig.align = 'center', 
+  fig.topcaption=TRUE, 
+  echo=F, 
+  message=F)
+```
+
+# Einleitung
+
+Dieses Dokument analysiert die Ausschreibungen und Anmeldungen der Sektionsanlässe des [SAC Bachtel](http://www.sac-bachtel.ch). Analysen sind möglich für die Jahre ab 2016, seit der Einführung von DropTours.
+
+Dazu werden von DropTours die gesamten Ausschreibungen und Anmeldungen heruntergeladen, bearbeitet (entfernen überflüssiger Informationen) und zusammengefügt zu einem Datensatz, welcher alle Anmeldungen kombiniert mit den jeweiligen Informationen zu den Anlässen. Nachfolgend wird der Prozess etwas genauer beschrieben.
+
+# Datenvorbereitung
+
+Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
+
+1.  Manuelles herunterladen der Excel der Anmeldungen und Ausschreibungen von [DropTours](http://www.sac-bachtel.ch/manager)
+
+2.  Manuelles bearbeiten der Excel:
+
+    -   Abspeichern im .xlsx-Format
+    -   Umbenennen der "Aktivität" in "Aktivitaet"; diese Spalte muss einheitlich sein für das spätere Zusammenfügen von Anmeldungen und Ausschreibungen
+
+3.  Einlesen der Daten der Anmeldungen und Ausschreibungen
+
+4.  Bearbeitung der Anmeldungen:
+
+    -   Es werden nur das Geschlecht, Name & Vorname, PLZ, Ort, Vegetarier, Kürzel, Geburtsjahr, Aktivität, Startdatum und Status behalten, der Rest wird gelöscht.
+
+5.  Bearbeitung der Ausschreibungen:
+
+    -   Es wird nur Aktivität, Startdatum, Tourtyp (lang und kurz), die technischen und konditionellen Anforderungen, sowie Name und Vorname des Tourenleiters behalten.
+
+6.  Die Datensätze aus Anmeldungen und Ausschreibungen werden anhand der Spalte `Aktivitaet` zusammengefügt
+
+7.  Neue Variablen werden gebildet:
+
+    -   Alter (anhand Jahr des Anlasses und Geburtsdatum)
+    -   Geschlecht (anhand der Anrede)
+
+```{r Einlesen Daten Anmeldung & Ausschreibungen, include=F}
+library(readxl) # Import von Excel
+library(dplyr) # Für spätere Analysen
+library(ggplot2) # Für spätere Abbildungen
+library(janitor) # Für Datenbereinigung und Tabellen
+
+anm_2016 <- read_excel("Rohdaten/Anmeldungen 2016.xlsx")
+anm_2017 <- read_excel("Rohdaten/Anmeldungen 2017.xlsx")
+anm_2018 <- read_excel("Rohdaten/Anmeldungen 2018.xlsx")
+anm_2019 <- read_excel("Rohdaten/Anmeldungen 2019.xlsx")
+anm_2020 <- read_excel("Rohdaten/Anmeldungen 2020.xlsx")
+auss_2016 <- read_excel("Rohdaten/Ausschreibungen 2016.xlsx")
+auss_2017 <- read_excel("Rohdaten/Ausschreibungen 2017.xlsx")
+auss_2018 <- read_excel("Rohdaten/Ausschreibungen 2018.xlsx")
+auss_2019 <- read_excel("Rohdaten/Ausschreibungen 2019.xlsx")
+auss_2020 <- read_excel("Rohdaten/Ausschreibungen 2020.xlsx")
+auss_2021 <- read_excel("Rohdaten/Ausschreibungen 2021.xlsx")
+```
+
+```{r Anmeldungen bearbeiten, include=F}
+temp2016 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
+              "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+anm_2016_klein <- anm_2016[temp2016]
+remove(temp2016, anm_2016)
+
+# 2017
+temp2017 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
+               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+anm_2017_klein <- anm_2017[temp2017]
+remove(temp2017, anm_2017)
+
+#2018
+temp2018 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
+               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+anm_2018_klein <- anm_2018[temp2018]
+remove(temp2018, anm_2018)
+
+#2019
+temp2019 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
+               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+anm_2019_klein <- anm_2019[temp2019]
+remove(temp2019, anm_2019)
+
+#2020
+temp2020 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
+              "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+anm_2020_klein <- anm_2020[temp2020]
+remove(temp2020, anm_2020)
+
+# Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
+anm_total <- rbind(anm_2016_klein, anm_2017_klein, anm_2018_klein, anm_2019_klein, anm_2020_klein)
+
+# Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
+anm_total = anm_total[!anm_total$Aktivitaet == "Testtour Anmeldung",] 
+
+# ** Neue Variablen bilden ----
+
+# Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
+anm_total$jahr <- as.numeric(format(anm_total$Startdatum,'%Y')) # Anmeldungen
+
+# Alter der Teilnehmenden berechnen (nur anhand Geburtsjahr). ACHTUNG: Bei fehlendem Geburtsjahr ist Alter = jahr!
+anm_total$alter <- anm_total$jahr-anm_total$Geburtsjahr 
+
+# Alter grösser als 199 mit NA ersetzen
+anm_total$alter_korr<-replace(anm_total$alter,anm_total$alter>199,NA)
+
+# Anrede zu Geschlecht umformatieren
+colnames(anm_total)[colnames(anm_total) == "Anrede"] <- "TN_geschlecht" # Spaltennamen ändern
+anm_total$TN_geschlecht<-replace(anm_total$TN_geschlecht,anm_total$TN_geschlecht == "Herr", "männlich")
+anm_total$TN_geschlecht<-replace(anm_total$TN_geschlecht,anm_total$TN_geschlecht == "Frau", "weiblich")
+
+# Informationen der TN: Spaltennamen ändern
+
+colnames(anm_total)[colnames(anm_total) == "Vorname"] <- "TN_Vorname"
+colnames(anm_total)[colnames(anm_total) == "Name"] <- "TN_Name" 
+colnames(anm_total)[colnames(anm_total) == "PLZ"] <- "TN_PLZ" 
+colnames(anm_total)[colnames(anm_total) == "Ort"] <- "TN_Ort" 
+colnames(anm_total)[colnames(anm_total) == "Vegetarier"] <- "TN_Vegetarier" 
+colnames(anm_total)[colnames(anm_total) == "Kuerzel"] <- "TN_Kuerzel" 
+colnames(anm_total)[colnames(anm_total) == "Geburtsjahr"] <- "TN_Geburtsjahr" 
+colnames(anm_total)[colnames(anm_total) == "alter"] <- "TN_alter" 
+colnames(anm_total)[colnames(anm_total) == "alter_korr"] <- "TN_alter_korr" 
+```
+
+```{r Ausschreibungen bearbeiten, include=F}
+# ** Zu behaltende Variablen definieren ----
+
+# 2016
+
+temp2016 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2016_klein <- auss_2016[temp2016]
+remove(temp2016, auss_2016)
+
+# 2017
+
+temp2017 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2017_klein <- auss_2017[temp2017]
+remove(temp2017, auss_2017)
+
+#2018
+
+temp2018 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2018_klein <- auss_2018[temp2018]
+remove(temp2018, auss_2018)
+
+#2019
+
+temp2019 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2019_klein <- auss_2019[temp2019]
+remove(temp2019, auss_2019)
+
+#2020
+
+temp2020 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2020_klein <- auss_2020[temp2020]
+remove(temp2020, auss_2020)
+
+#2021
+
+temp2021 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+              "Kond. Anforderungen", "Name", "Vorname", "Status")
+auss_2021_klein <- auss_2021[temp2021]
+remove(temp2021, auss_2021)
+
+# Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
+auss_total <- rbind(auss_2016_klein, auss_2017_klein, auss_2018_klein, auss_2019_klein, 
+                    auss_2020_klein, auss_2021_klein)
+
+# Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
+auss_total = auss_total[!auss_total$Aktivitaet == "Testtour Anmeldung",] 
+
+# Name & Vorname TL: Spalten umbenennen
+colnames(auss_total)[colnames(auss_total) == "Vorname"] <- "TL_Vorname"
+colnames(auss_total)[colnames(auss_total) == "Name"] <- "TL_Nachname" 
+
+# Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
+auss_total$jahr <- as.numeric(format(auss_total$Startdatum,'%Y')) # Ausschreibungen
+```
+
+```{r Datensätze Anmeldungen & Ausschreibungen zusammenfügen, include=F}
+total <- merge(auss_total, anm_total)
+```
+
+# Analysen
+
+## Analyse der Anmeldungen
+
+### Geschlecht
+
+Nachfolgend einige Analysen zu den absoluten Anmeldungen. In Abbildung \ref{fig:Anmeldungen_Jahr} sind die Anzahl Anmeldungen pro Jahr ersichtlich, in Abbildung \ref{fig:Anmeldungen_Jahr_Geschlecht} sind sie nach Geschlecht getrennt. Beide Abbildungen zeigen klar den Corona-bedingten Rückgang an Anmeldungen im Jahr 2020. Die zweite Abbildung zeigt zudem, wie die Anzahl Anmeldungen von weiblichen Mitgliedern seit 2016 am steigen war, während die Männer von 2017 auf 2018 sogar einen leichten Rückgang erlitten bei den Anmeldungen.
+
+```{r Anmeldungen_Jahr, echo=F, fig.cap="Total Anmeldungen nach Jahr"}
+anm_total %>%
+  ggplot(aes(x = jahr)) +
+  geom_bar(stat = "count") +
+  labs(
+    x = "Jahr", 
+    y = "Anzahl Anmeldungen")  +
+  scale_y_continuous(breaks=c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+
+```
+
+```{r Anmeldungen_Jahr_Geschlecht, echo=F, fig.cap="Total Anmeldungen nach Jahr und Geschlecht"}
+anm_total %>%
+  ggplot(aes(x = jahr, fill = TN_geschlecht)) +
+  geom_bar(stat = "count") +
+  labs(
+    x = "Jahr", 
+    y = "Anzahl Anmeldungen",
+    fill = "Geschlecht")  +
+  scale_y_continuous(breaks=c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
+### Alter
+
+Nachfolgend werden die Durchschnittsalter der Teilnehmenden nach Jahr (beide Geschlechter zusammen) und nach Geschlecht (alle Jahre zusammen) gezeigt. Es ist ersichtlich, dass einerseits das Durchschnittsalter der Teilnehmenden sinkt (Tabelle \ref{tab:durchschnittsalter}) und die Teilnehmerinnen jünger sind als die Teilnehmer (Tabelle \ref{tab:durchschnittsalter_alle_jahre}).
+
+```{r durchschnittsalter, echo=F, message=F}
+
+knitr::kable(anm_total %>% 
+  group_by(jahr) %>%
+  summarize(mw_alter=mean(TN_alter_korr, na.rm = TRUE,
+                          total = sum(n))),
+  caption = "Durchschnittsalter nach Jahr\\label{tab:durchschnittsalter}",
+  col.names = c("Jahr", "Durchschnittsalter"),
+  align = "lc",
+  digits = 1)
+```
+
+Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer Abbildung visualisieren: Abbildung \ref{fig:altersverteilung_geschlecht} zeigt die Altersverteilung der Anmeldungen nach Geschlecht als Baumdiagramm, wobei breitere Stellen auf mehr Personen in diesem Alter hinweisen, schmälere auf weniger Personen. Dabei wird ersichtlich, dass:
+
+-   Die Männer tendenziell länger an Sektionsanlässen teilnehmen (Spitze weiter oben)
+-   Frauen eher ein tieferes Durchschnittsalter aufweisen (breiteste Stelle ist wewiter unten)
+-   Bei beiden Geschlechtern eine Häufung an Aktivitäten auftreten ca. im 55 Altersjahr, gefolgt von einem Rückgang ("Taille" ca. bei 60 Jahren), gefolgt von einem neuerlichen Anstieg nach der Pensionierung
+-   Sowohl bei den Männern als auch bei den Frauen die meisten Teilnehmer\*innen zwischen 65 und 75 Jahre alt sind
+
+```{r altersverteilung_geschlecht, fig.cap="Altersverteilung der Anmeldungen nach Geschlecht getrennt", warning=F}
+
+anm_total %>%
+  ggplot(aes(x = TN_geschlecht,
+             y = TN_alter_korr)) +
+  geom_dotplot(binaxis = "y",
+               stackdir = "center",
+               binwidth = 0.2) +
+  labs(x = "Geschlecht",
+       y = "Alter der Anmeldungen") +
+  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) 
+
+```
+
+In Abbildung \ref{fig:altersverteilung_jahr_geschlecht} ist das Alter der angemeldeten Teilnehmer\*innen zudem pro Jahr ersichtlich, links die Männer und rechts die Frauen. Der in Tabelle \ref{tab:durchschnittsalter} festgestellte Rückgang des Durchschnittsalter lässt sich so jedoch kaum visualisieren.
+
+```{r altersverteilung_jahr_geschlecht, fig.cap="Altersverteilung der Anmeldungen nach Jahr und Geschlecht getrennt", warning=F}
+
+anm_total %>%
+  ggplot(aes(x = factor(jahr),
+               y = TN_alter_korr, na.rm = TRUE)) +
+  geom_dotplot(binaxis = "y",
+               stackdir = "center",
+               binwidth = 0.1) +
+  labs(x = "Jahr",
+       y = "Alter der Anmeldungen",
+       fill = "Geschlecht") +
+  facet_grid(. ~ TN_geschlecht) +
+  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
+
+```
+
+```{r durchschnittsalter_alle_jahre, echo=F, message=F}
+
+knitr::kable(total %>% 
+  group_by(TN_geschlecht) %>%
+  summarize(mw_alter=mean(TN_alter_korr, na.rm = TRUE)),
+  caption = "Durchschnittsalter nach Geschlecht (alle Jahre zusammen)\\label{tab:durchschnittsalter_alle_jahre}",
+  col.names = c("Geschlecht", "Durchschnittsalter"),
+  align = "lc",
+  digits = 1)
+```
+
+
+```{r alter_jahr,fig.cap="Altersverteilung der Anmeldungen nach Jahr und Geschlecht", warning=F}
+
+anm_total %>%
+  ggplot(aes(x = factor(jahr),
+             y = TN_alter_korr,
+             colour = TN_geschlecht)) +
+  geom_dotplot(binaxis = "y",
+               stackdir = "center",
+               binwidth = 0.2) +
+  labs(x = "Jahr",
+       y = "Alter der Anmeldungen",
+       colour = "Geschlecht") +
+  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
+
+```
+
+### Anzahl Teilnehmer pro Tour
+
+### Anmeldungen im Corona-Jahr 2020
+
+In Abbildung \ref{fig:anmeldungen_2020} ist die Verteilung der Anmeldungen im Jahr 2020 ersichtlich. Klar zu sehen ist der starke Rückgang an Anmeldungen ab ca. Mitte März (Lockdown), gefolgt von einem Anstieg der Sommertouren und dem neuerlichen Rückgang ab ca. Mitte Oktober (eine Säule steht für jeweils einen halben Monat). Als Vergleich dient Abbildung \ref{fig:anmeldungen_2019}, welche einen viel gleichmässigeren Saisonverlauf zeigt.
+
+```{r anmeldungen_2020, fig.cap="Verlauf der Anmeldungen im Jahr 2020 (alle Anlässe der Sektion)"}
+anm_total %>%
+  filter(Startdatum >= as.POSIXct('2020-01-01') & Startdatum <= as.POSIXct('2020-12-31')) %>%
+  ggplot(aes(x = Startdatum)) +
+  geom_histogram(bins = 24) +
+  labs(x = "Datum des Anlasses",
+       y = "Anzahl Anmeldungen")
+```
+
+```{r anmeldungen_2019, fig.cap="Verlauf der Anmeldungen im Jahr 2019 (alle Anlässe der Sektion)"}
+anm_total %>%
+  filter(Startdatum >= as.POSIXct('2019-01-01') & Startdatum <= as.POSIXct('2019-12-31')) %>%
+  ggplot(aes(x = Startdatum)) +
+  geom_histogram(bins = 24) +
+  labs(x = "Datum des Anlasses",
+       y = "Anzahl Anmeldungen")
+```
+
+## Analyse der Ausschreibungen
+
+### Anzahl Ausschreibungen pro Jahr
+
+In Abbildung \ref{fig:ausschreibungen_jahr} sind die Anzahl Ausschreibungen nach Jahr ersichtlich. Es zeigt sich dabei, dass die Anzahl über die letzten Jahren stabil geblieben ist und zwischen 400 und 450 Ausschreibungen schwankt.
+
+```{r ausschreibungen_jahr, fig.cap="Anzahl Ausschreibungen pro Jahr"}
+auss_total %>%
+  ggplot(aes(x = jahr)) +
+  geom_bar(stat = "count") +
+  labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen")  +
+  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+
+```
+
+### Tourtyp pro Jahr
+
+In Abbildung \ref{fig:tourtypen_jahr} sind die Ausschreibungen nach Tourtyp und Jahr ersichtlich, wobei nur die folgenden Touren der Sektion (ohne JO) berücksichtigt wurden:
+
+-   Skitouren
+-   Schneeschuhtouren
+-   Wanderungen
+-   Hochtouren
+-   Veranstaltungen
+
+Untersucht man die Anzahl Ausschreibungen differenzierter nach Tourtyp, zeigen sich doch die einen oder anderen Schwankungen. So ist z. B. die Anzahl ausgeschriebener Wanderungen seit 2019 stetig zurückgagangen, von `r count(auss_total %>% filter(jahr == 2019) %>% filter(Tourtyp == "W"))` über `r count(auss_total %>% filter(jahr == 2020) %>% filter(Tourtyp == "W"))` auf `r count(auss_total %>% filter(jahr == 2021) %>% filter(Tourtyp == "W"))`. Noch klarer zeigt sich das in Abbildung \ref{fig:tourtypen_jahr_w}, wo nur die Touren des Ressorts Wandern abgebildet sind.
+
+```{r tourtypen_jahr, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr"}
+auss_total %>%
+  filter(Tourtyp %in% c("H", "W", "S", "SS", "V")) %>%
+  ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Tourtyp")  +
+  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
+```{r tourtypen_jahr_w, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Ressort Wandern, Bergtouren \\& Schneeschuhe, alle Anlässe der Sektion (inkl. Senioren etc.)"}
+auss_total %>%
+  filter(Tourtyp %in% c("BT", "W", "SS")) %>%
+  ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Tourtyp")  +
+  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
+In Abbildung \ref{fig:tourtypen_jahr_w_sek} ist die Anzahl Ausschreibungen der Wanderungen, Berg- und Schneeschuhtouren der Sektion ersichtlich. Es wird dabei klar, dass die Anzahl der ausgeschriebenen Wanderungen und Schneeschuhtouren von 2020 auf 2021 relativ stark zurückgegangen ist^[Zu bedenken ist, dass hier die Zusatztouren noch nicht ins Gewicht fallen, die evtl. im Laufe des Jahres noch dazukommen. Die Bilanz könnte sich also noch etwas verbessern].
+
+```{r tourtypen_jahr_w_sek, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Sektion (ohne Senioren)"}
+auss_total %>%
+  filter(Tourtyp %in% c("BT", "W", "SS")) %>%
+  filter(Gruppe %in% c("Sektion")) %>%
+  ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Tourtyp")  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
+```{r tourtypen_jahr_w_sen, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Senioren (ohne Sektion)"}
+auss_total %>%
+  filter(Tourtyp %in% c("BT", "W", "SS")) %>%
+  filter(Gruppe %in% c("Senioren")) %>%
+  ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Tourtyp")  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+## Ausschreibungen nach Gruppe
+
+```{r gruppe, fig.cap="Ausgeschriebene Touren Gruppe pro Jahr, nur Sektion, Jugend \\& Senioren"}
+auss_total %>%
+ filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
+  ggplot(aes(x = jahr, fill = factor(Gruppe)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Gruppe")  +
+  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
+## Status der Touren
+
+```{r status, fig.cap="Status der ausgeschriebenen Touren nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Sektion (ohne Senioren)"}
+auss_total %>%
+ filter(Tourtyp %in% c("BT", "W", "SS")) %>%
+ filter(Gruppe %in% c("Sektion")) %>%
+ filter(jahr != 2021) %>%
+  ggplot(aes(x = jahr, fill = factor(Status)),
+         position = position_dodge(preserve = 'single')) +
+  geom_bar(stat = "count") +
+    labs(
+    x = "Jahr", 
+    y = "Anzahl Ausschreibungen", 
+    fill = "Status")  +
+ # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(geom = "text", colour = "white", size = 3.5,
+  aes(label = ..count..),position=position_stack(vjust=0.5))
+```
+
