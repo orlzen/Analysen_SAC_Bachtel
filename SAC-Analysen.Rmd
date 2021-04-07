@@ -16,11 +16,12 @@ lang: de-DE
 ```{r global setup, include = FALSE}
 # global options für alle Abbildungen: 50% Breite und Ausrichtung zentriert
 knitr::opts_chunk$set(
-  out.width = "50%", 
-  fig.align = 'center', 
-  fig.topcaption=TRUE, 
-  echo=F, 
-  message=F)
+  out.width = "50%",
+  fig.align = "center",
+  fig.topcaption = TRUE,
+  echo = F,
+  message = F
+)
 ```
 
 # Einleitung
@@ -77,32 +78,42 @@ auss_2021 <- read_excel("Rohdaten/Ausschreibungen 2021.xlsx")
 ```
 
 ```{r Anmeldungen bearbeiten, include=F}
-temp2016 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
-              "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+temp2016 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
 anm_2016_klein <- anm_2016[temp2016]
 remove(temp2016, anm_2016)
 
 # 2017
-temp2017 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
-               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+temp2017 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
 anm_2017_klein <- anm_2017[temp2017]
 remove(temp2017, anm_2017)
 
-#2018
-temp2018 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
-               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+# 2018
+temp2018 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
 anm_2018_klein <- anm_2018[temp2018]
 remove(temp2018, anm_2018)
 
-#2019
-temp2019 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
-               "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+# 2019
+temp2019 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
 anm_2019_klein <- anm_2019[temp2019]
 remove(temp2019, anm_2019)
 
-#2020
-temp2020 <- c("Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel", 
-              "Geburtsjahr", "Aktivitaet", "Startdatum", "Status")
+# 2020
+temp2020 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
 anm_2020_klein <- anm_2020[temp2020]
 remove(temp2020, anm_2020)
 
@@ -110,35 +121,35 @@ remove(temp2020, anm_2020)
 anm_total <- rbind(anm_2016_klein, anm_2017_klein, anm_2018_klein, anm_2019_klein, anm_2020_klein)
 
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
-anm_total = anm_total[!anm_total$Aktivitaet == "Testtour Anmeldung",] 
+anm_total <- anm_total[!anm_total$Aktivitaet == "Testtour Anmeldung", ]
 
 # ** Neue Variablen bilden ----
 
 # Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
-anm_total$jahr <- as.numeric(format(anm_total$Startdatum,'%Y')) # Anmeldungen
+anm_total$jahr <- as.numeric(format(anm_total$Startdatum, "%Y")) # Anmeldungen
 
 # Alter der Teilnehmenden berechnen (nur anhand Geburtsjahr). ACHTUNG: Bei fehlendem Geburtsjahr ist Alter = jahr!
-anm_total$alter <- anm_total$jahr-anm_total$Geburtsjahr 
+anm_total$alter <- anm_total$jahr - anm_total$Geburtsjahr
 
 # Alter grösser als 199 mit NA ersetzen
-anm_total$alter_korr<-replace(anm_total$alter,anm_total$alter>199,NA)
+anm_total$alter_korr <- replace(anm_total$alter, anm_total$alter > 199, NA)
 
 # Anrede zu Geschlecht umformatieren
 colnames(anm_total)[colnames(anm_total) == "Anrede"] <- "TN_geschlecht" # Spaltennamen ändern
-anm_total$TN_geschlecht<-replace(anm_total$TN_geschlecht,anm_total$TN_geschlecht == "Herr", "männlich")
-anm_total$TN_geschlecht<-replace(anm_total$TN_geschlecht,anm_total$TN_geschlecht == "Frau", "weiblich")
+anm_total$TN_geschlecht <- replace(anm_total$TN_geschlecht, anm_total$TN_geschlecht == "Herr", "männlich")
+anm_total$TN_geschlecht <- replace(anm_total$TN_geschlecht, anm_total$TN_geschlecht == "Frau", "weiblich")
 
 # Informationen der TN: Spaltennamen ändern
 
 colnames(anm_total)[colnames(anm_total) == "Vorname"] <- "TN_Vorname"
-colnames(anm_total)[colnames(anm_total) == "Name"] <- "TN_Name" 
-colnames(anm_total)[colnames(anm_total) == "PLZ"] <- "TN_PLZ" 
-colnames(anm_total)[colnames(anm_total) == "Ort"] <- "TN_Ort" 
-colnames(anm_total)[colnames(anm_total) == "Vegetarier"] <- "TN_Vegetarier" 
-colnames(anm_total)[colnames(anm_total) == "Kuerzel"] <- "TN_Kuerzel" 
-colnames(anm_total)[colnames(anm_total) == "Geburtsjahr"] <- "TN_Geburtsjahr" 
-colnames(anm_total)[colnames(anm_total) == "alter"] <- "TN_alter" 
-colnames(anm_total)[colnames(anm_total) == "alter_korr"] <- "TN_alter_korr" 
+colnames(anm_total)[colnames(anm_total) == "Name"] <- "TN_Name"
+colnames(anm_total)[colnames(anm_total) == "PLZ"] <- "TN_PLZ"
+colnames(anm_total)[colnames(anm_total) == "Ort"] <- "TN_Ort"
+colnames(anm_total)[colnames(anm_total) == "Vegetarier"] <- "TN_Vegetarier"
+colnames(anm_total)[colnames(anm_total) == "Kuerzel"] <- "TN_Kuerzel"
+colnames(anm_total)[colnames(anm_total) == "Geburtsjahr"] <- "TN_Geburtsjahr"
+colnames(anm_total)[colnames(anm_total) == "alter"] <- "TN_alter"
+colnames(anm_total)[colnames(anm_total) == "alter_korr"] <- "TN_alter_korr"
 ```
 
 ```{r Ausschreibungen bearbeiten, include=F}
@@ -146,59 +157,73 @@ colnames(anm_total)[colnames(anm_total) == "alter_korr"] <- "TN_alter_korr"
 
 # 2016
 
-temp2016 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2016 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2016_klein <- auss_2016[temp2016]
 remove(temp2016, auss_2016)
 
 # 2017
 
-temp2017 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2017 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2017_klein <- auss_2017[temp2017]
 remove(temp2017, auss_2017)
 
-#2018
+# 2018
 
-temp2018 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2018 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2018_klein <- auss_2018[temp2018]
 remove(temp2018, auss_2018)
 
-#2019
+# 2019
 
-temp2019 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2019 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2019_klein <- auss_2019[temp2019]
 remove(temp2019, auss_2019)
 
-#2020
+# 2020
 
-temp2020 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2020 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2020_klein <- auss_2020[temp2020]
 remove(temp2020, auss_2020)
 
-#2021
+# 2021
 
-temp2021 <- c("Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-              "Kond. Anforderungen", "Name", "Vorname", "Status")
+temp2021 <- c(
+  "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
+  "Kond. Anforderungen", "Name", "Vorname", "Status"
+)
 auss_2021_klein <- auss_2021[temp2021]
 remove(temp2021, auss_2021)
 
 # Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
-auss_total <- rbind(auss_2016_klein, auss_2017_klein, auss_2018_klein, auss_2019_klein, 
-                    auss_2020_klein, auss_2021_klein)
+auss_total <- rbind(
+  auss_2016_klein, auss_2017_klein, auss_2018_klein, auss_2019_klein,
+  auss_2020_klein, auss_2021_klein
+)
 
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
-auss_total = auss_total[!auss_total$Aktivitaet == "Testtour Anmeldung",] 
+auss_total <- auss_total[!auss_total$Aktivitaet == "Testtour Anmeldung", ]
 
 # Name & Vorname TL: Spalten umbenennen
 colnames(auss_total)[colnames(auss_total) == "Vorname"] <- "TL_Vorname"
-colnames(auss_total)[colnames(auss_total) == "Name"] <- "TL_Nachname" 
+colnames(auss_total)[colnames(auss_total) == "Name"] <- "TL_Nachname"
 
 # Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
-auss_total$jahr <- as.numeric(format(auss_total$Startdatum,'%Y')) # Ausschreibungen
+auss_total$jahr <- as.numeric(format(auss_total$Startdatum, "%Y")) # Ausschreibungen
 ```
 
 ```{r Datensätze Anmeldungen & Ausschreibungen zusammenfügen, include=F}
@@ -218,12 +243,14 @@ anm_total %>%
   ggplot(aes(x = jahr)) +
   geom_bar(stat = "count") +
   labs(
-    x = "Jahr", 
-    y = "Anzahl Anmeldungen")  +
-  scale_y_continuous(breaks=c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
-
+    x = "Jahr",
+    y = "Anzahl Anmeldungen"
+  ) +
+  scale_y_continuous(breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ```{r Anmeldungen_Jahr_Geschlecht, echo=F, fig.cap="Total Anmeldungen nach Jahr und Geschlecht"}
@@ -231,12 +258,15 @@ anm_total %>%
   ggplot(aes(x = jahr, fill = TN_geschlecht)) +
   geom_bar(stat = "count") +
   labs(
-    x = "Jahr", 
+    x = "Jahr",
     y = "Anzahl Anmeldungen",
-    fill = "Geschlecht")  +
-  scale_y_continuous(breaks=c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+    fill = "Geschlecht"
+  ) +
+  scale_y_continuous(breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ### Alter
@@ -245,14 +275,17 @@ Nachfolgend werden die Durchschnittsalter der Teilnehmenden nach Jahr (beide Ges
 
 ```{r durchschnittsalter, echo=F, message=F}
 
-knitr::kable(anm_total %>% 
+knitr::kable(anm_total %>%
   group_by(jahr) %>%
-  summarize(mw_alter=mean(TN_alter_korr, na.rm = TRUE,
-                          total = sum(n))),
-  caption = "Durchschnittsalter nach Jahr\\label{tab:durchschnittsalter}",
-  col.names = c("Jahr", "Durchschnittsalter"),
-  align = "lc",
-  digits = 1)
+  summarize(mw_alter = mean(TN_alter_korr,
+    na.rm = TRUE,
+    total = sum(n)
+  )),
+caption = "Durchschnittsalter nach Jahr\\label{tab:durchschnittsalter}",
+col.names = c("Jahr", "Durchschnittsalter"),
+align = "lc",
+digits = 1
+)
 ```
 
 Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer Abbildung visualisieren: Abbildung \ref{fig:altersverteilung_geschlecht} zeigt die Altersverteilung der Anmeldungen nach Geschlecht als Baumdiagramm, wobei breitere Stellen auf mehr Personen in diesem Alter hinweisen, schmälere auf weniger Personen. Dabei wird ersichtlich, dass:
@@ -263,17 +296,21 @@ Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer
 -   Sowohl bei den Männern als auch bei den Frauen die meisten Teilnehmer\*innen zwischen 65 und 75 Jahre alt sind
 
 ```{r altersverteilung_geschlecht, fig.cap="Altersverteilung der Anmeldungen nach Geschlecht getrennt", warning=F}
-
 anm_total %>%
-  ggplot(aes(x = TN_geschlecht,
-             y = TN_alter_korr)) +
-  geom_dotplot(binaxis = "y",
-               stackdir = "center",
-               binwidth = 0.2) +
-  labs(x = "Geschlecht",
-       y = "Alter der Anmeldungen") +
-  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) 
-
+  ggplot(aes(
+    x = TN_geschlecht,
+    y = TN_alter_korr
+  )) +
+  geom_dotplot(
+    binaxis = "y",
+    stackdir = "center",
+    binwidth = 0.2
+  ) +
+  labs(
+    x = "Geschlecht",
+    y = "Alter der Anmeldungen"
+  ) +
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
 ```
 
 In Abbildung \ref{fig:altersverteilung_jahr_geschlecht} ist das Alter der angemeldeten Teilnehmer\*innen zudem pro Jahr ersichtlich, links die Männer und rechts die Frauen. Der in Tabelle \ref{tab:durchschnittsalter} festgestellte Rückgang des Durchschnittsalter lässt sich so jedoch kaum visualisieren.
@@ -281,45 +318,56 @@ In Abbildung \ref{fig:altersverteilung_jahr_geschlecht} ist das Alter der angeme
 ```{r altersverteilung_jahr_geschlecht, fig.cap="Altersverteilung der Anmeldungen nach Jahr und Geschlecht getrennt", warning=F}
 
 anm_total %>%
-  ggplot(aes(x = factor(jahr),
-               y = TN_alter_korr, na.rm = TRUE)) +
-  geom_dotplot(binaxis = "y",
-               stackdir = "center",
-               binwidth = 0.1) +
-  labs(x = "Jahr",
-       y = "Alter der Anmeldungen",
-       fill = "Geschlecht") +
+  ggplot(aes(
+    x = factor(jahr),
+    y = TN_alter_korr, na.rm = TRUE
+  )) +
+  geom_dotplot(
+    binaxis = "y",
+    stackdir = "center",
+    binwidth = 0.1
+  ) +
+  labs(
+    x = "Jahr",
+    y = "Alter der Anmeldungen",
+    fill = "Geschlecht"
+  ) +
   facet_grid(. ~ TN_geschlecht) +
-  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
-
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
 ```
 
 ```{r durchschnittsalter_alle_jahre, echo=F, message=F}
 
-knitr::kable(total %>% 
+knitr::kable(total %>%
   group_by(TN_geschlecht) %>%
-  summarize(mw_alter=mean(TN_alter_korr, na.rm = TRUE)),
-  caption = "Durchschnittsalter nach Geschlecht (alle Jahre zusammen)\\label{tab:durchschnittsalter_alle_jahre}",
-  col.names = c("Geschlecht", "Durchschnittsalter"),
-  align = "lc",
-  digits = 1)
+  summarize(mw_alter = mean(TN_alter_korr, na.rm = TRUE)),
+caption = "Durchschnittsalter nach Geschlecht (alle Jahre zusammen)\\label{tab:durchschnittsalter_alle_jahre}",
+col.names = c("Geschlecht", "Durchschnittsalter"),
+align = "lc",
+digits = 1
+)
 ```
 
 
 ```{r alter_jahr,fig.cap="Altersverteilung der Anmeldungen nach Jahr und Geschlecht", warning=F}
 
 anm_total %>%
-  ggplot(aes(x = factor(jahr),
-             y = TN_alter_korr,
-             colour = TN_geschlecht)) +
-  geom_dotplot(binaxis = "y",
-               stackdir = "center",
-               binwidth = 0.2) +
-  labs(x = "Jahr",
-       y = "Alter der Anmeldungen",
-       colour = "Geschlecht") +
-  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
-
+  ggplot(aes(
+    x = factor(jahr),
+    y = TN_alter_korr,
+    colour = TN_geschlecht
+  )) +
+  geom_dotplot(
+    binaxis = "y",
+    stackdir = "center",
+    binwidth = 0.2
+  ) +
+  labs(
+    x = "Jahr",
+    y = "Alter der Anmeldungen",
+    colour = "Geschlecht"
+  ) +
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
 ```
 
 ### Anzahl Teilnehmer pro Tour
@@ -330,20 +378,24 @@ In Abbildung \ref{fig:anmeldungen_2020} ist die Verteilung der Anmeldungen im Ja
 
 ```{r anmeldungen_2020, fig.cap="Verlauf der Anmeldungen im Jahr 2020 (alle Anlässe der Sektion)"}
 anm_total %>%
-  filter(Startdatum >= as.POSIXct('2020-01-01') & Startdatum <= as.POSIXct('2020-12-31')) %>%
+  filter(Startdatum >= as.POSIXct("2020-01-01") & Startdatum <= as.POSIXct("2020-12-31")) %>%
   ggplot(aes(x = Startdatum)) +
   geom_histogram(bins = 24) +
-  labs(x = "Datum des Anlasses",
-       y = "Anzahl Anmeldungen")
+  labs(
+    x = "Datum des Anlasses",
+    y = "Anzahl Anmeldungen"
+  )
 ```
 
 ```{r anmeldungen_2019, fig.cap="Verlauf der Anmeldungen im Jahr 2019 (alle Anlässe der Sektion)"}
 anm_total %>%
-  filter(Startdatum >= as.POSIXct('2019-01-01') & Startdatum <= as.POSIXct('2019-12-31')) %>%
+  filter(Startdatum >= as.POSIXct("2019-01-01") & Startdatum <= as.POSIXct("2019-12-31")) %>%
   ggplot(aes(x = Startdatum)) +
   geom_histogram(bins = 24) +
-  labs(x = "Datum des Anlasses",
-       y = "Anzahl Anmeldungen")
+  labs(
+    x = "Datum des Anlasses",
+    y = "Anzahl Anmeldungen"
+  )
 ```
 
 ## Analyse der Ausschreibungen
@@ -357,13 +409,15 @@ auss_total %>%
   ggplot(aes(x = jahr)) +
   geom_bar(stat = "count") +
   labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen")  +
-  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
-
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen"
+  ) +
+  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ### Tourtyp pro Jahr
@@ -402,16 +456,20 @@ auss_total %>%
 auss_total %>%
   filter(Tourtyp %in% c("BT", "W", "SS")) %>%
   ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Tourtyp")  +
-  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
+  ) +
+  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 In Abbildung \ref{fig:tourtypen_jahr_w_sek} ist die Anzahl Ausschreibungen der Wanderungen, Berg- und Schneeschuhtouren der Sektion ersichtlich. Es wird dabei klar, dass die Anzahl der ausgeschriebenen Wanderungen und Schneeschuhtouren von 2020 auf 2021 relativ stark zurückgegangen ist^[Zu bedenken ist, dass hier die Zusatztouren noch nicht ins Gewicht fallen, die evtl. im Laufe des Jahres noch dazukommen. Die Bilanz könnte sich also noch etwas verbessern].
@@ -421,15 +479,19 @@ auss_total %>%
   filter(Tourtyp %in% c("BT", "W", "SS")) %>%
   filter(Gruppe %in% c("Sektion")) %>%
   ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Tourtyp")  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
+  ) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ```{r tourtypen_jahr_w_sen, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Senioren (ohne Sektion)"}
@@ -437,51 +499,62 @@ auss_total %>%
   filter(Tourtyp %in% c("BT", "W", "SS")) %>%
   filter(Gruppe %in% c("Senioren")) %>%
   ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Tourtyp")  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
+  ) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 ## Ausschreibungen nach Gruppe
 
 ```{r gruppe, fig.cap="Ausgeschriebene Touren Gruppe pro Jahr, nur Sektion, Jugend \\& Senioren"}
 auss_total %>%
- filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
+  filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
   ggplot(aes(x = jahr, fill = factor(Gruppe)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Gruppe")  +
-  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Gruppe"
+  ) +
+  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ## Status der Touren
 
 ```{r status, fig.cap="Status der ausgeschriebenen Touren nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Sektion (ohne Senioren)"}
 auss_total %>%
- filter(Tourtyp %in% c("BT", "W", "SS")) %>%
- filter(Gruppe %in% c("Sektion")) %>%
- filter(jahr != 2021) %>%
+  filter(Tourtyp %in% c("BT", "W", "SS")) %>%
+  filter(Gruppe %in% c("Sektion")) %>%
+  filter(jahr != 2021) %>%
   ggplot(aes(x = jahr, fill = factor(Status)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Status")  +
- # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Status"
+  ) +
+  # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
-
