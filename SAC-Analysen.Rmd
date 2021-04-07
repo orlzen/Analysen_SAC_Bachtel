@@ -382,16 +382,20 @@ Untersucht man die Anzahl Ausschreibungen differenzierter nach Tourtyp, zeigen s
 auss_total %>%
   filter(Tourtyp %in% c("H", "W", "S", "SS", "V")) %>%
   ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
-         position = position_dodge(preserve = 'single')) +
+    position = position_dodge(preserve = "single")
+  ) +
   geom_bar(stat = "count") +
-    labs(
-    x = "Jahr", 
-    y = "Anzahl Ausschreibungen", 
-    fill = "Tourtyp")  +
-  scale_y_continuous(breaks=c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450))  +
-  scale_x_continuous(breaks=c(2016, 2017, 2018, 2019, 2020, 2021)) +
-  stat_count(geom = "text", colour = "white", size = 3.5,
-  aes(label = ..count..),position=position_stack(vjust=0.5))
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
+  ) +
+  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
 ```
 
 ```{r tourtypen_jahr_w, fig.cap="Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Ressort Wandern, Bergtouren \\& Schneeschuhe, alle Anlässe der Sektion (inkl. Senioren etc.)"}
