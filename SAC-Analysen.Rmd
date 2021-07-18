@@ -58,12 +58,14 @@ Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
     -   Alter (anhand Jahr des Anlasses und Geburtsdatum)
     -   Geschlecht (anhand der Anrede)
 
-```{r Einlesen Daten Anmeldung & Ausschreibungen, include=F}
+```{r packages}
 library(readxl) # Import von Excel
 library(dplyr) # Für spätere Analysen
 library(ggplot2) # Für spätere Abbildungen
 library(janitor) # Für Datenbereinigung und Tabellen
+```
 
+```{r Einlesen Daten Anmeldung & Ausschreibungen, include=F}
 anm_2016 <- read_excel("Rohdaten/Anmeldungen 2016.xlsx")
 anm_2017 <- read_excel("Rohdaten/Anmeldungen 2017.xlsx")
 anm_2018 <- read_excel("Rohdaten/Anmeldungen 2018.xlsx")
