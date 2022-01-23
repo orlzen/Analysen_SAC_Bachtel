@@ -71,6 +71,7 @@ anm_2017 <- read_excel("Rohdaten/Anmeldungen 2017.xlsx")
 anm_2018 <- read_excel("Rohdaten/Anmeldungen 2018.xlsx")
 anm_2019 <- read_excel("Rohdaten/Anmeldungen 2019.xlsx")
 anm_2020 <- read_excel("Rohdaten/Anmeldungen 2020.xlsx")
+anm_2021 <- read_excel("Rohdaten/Anmeldungen 2021.xlsx")
 auss_2016 <- read_excel("Rohdaten/Ausschreibungen 2016.xlsx")
 auss_2017 <- read_excel("Rohdaten/Ausschreibungen 2017.xlsx")
 auss_2018 <- read_excel("Rohdaten/Ausschreibungen 2018.xlsx")
@@ -120,8 +121,21 @@ temp2020 <- c(
 anm_2020_klein <- anm_2020[temp2020]
 remove(temp2020, anm_2020)
 
+# 2021
+temp2021 <- c(
+  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
+)
+anm_2021_klein <- anm_2021[temp2020]
+remove(temp2021, anm_2021)
+
 # Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
-anm_total <- rbind(anm_2016_klein, anm_2017_klein, anm_2018_klein, anm_2019_klein, anm_2020_klein)
+anm_total <- rbind(anm_2016_klein, 
+                   anm_2017_klein, 
+                   anm_2018_klein, 
+                   anm_2019_klein, 
+                   anm_2020_klein,
+                   anm_2021_klein)
 
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
 anm_total <- anm_total[!anm_total$Aktivitaet == "Testtour Anmeldung", ]
