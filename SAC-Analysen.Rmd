@@ -34,6 +34,7 @@ library(here) # Für saubere Pfade
 ```
 
 ```{r set_here, include = FALSE}
+# Set the main directory to the top level of here
 here::here()
 ```
 
