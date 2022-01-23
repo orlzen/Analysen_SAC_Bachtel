@@ -16,13 +16,15 @@ lang: de-DE
 ```{r global setup, include = FALSE}
 # global options für alle Abbildungen: 50% Breite und Ausrichtung zentriert
 knitr::opts_chunk$set(
-  out.width = "50%",
+  out.width = "75%",
   fig.align = "center",
   fig.topcaption = TRUE,
   echo = F,
   message = F
 )
 ```
+
+\newpage
 
 # Einleitung
 
@@ -58,20 +60,21 @@ Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
     -   Alter (anhand Jahr des Anlasses und Geburtsdatum)
     -   Geschlecht (anhand der Anrede)
 
-```{r packages}
+```{r packages, include = FALSE}
 library(readxl) # Import von Excel
 library(dplyr) # Für spätere Analysen
 library(ggplot2) # Für spätere Abbildungen
 library(janitor) # Für Datenbereinigung und Tabellen
 ```
 
-```{r Einlesen Daten Anmeldung & Ausschreibungen, include = FALSE}
+```{r Einlesen_Daten_Anmeldung _und_Ausschreibungen, include = FALSE}
 anm_2016 <- read_excel("Rohdaten/Anmeldungen 2016.xlsx")
 anm_2017 <- read_excel("Rohdaten/Anmeldungen 2017.xlsx")
 anm_2018 <- read_excel("Rohdaten/Anmeldungen 2018.xlsx")
 anm_2019 <- read_excel("Rohdaten/Anmeldungen 2019.xlsx")
 anm_2020 <- read_excel("Rohdaten/Anmeldungen 2020.xlsx")
 anm_2021 <- read_excel("Rohdaten/Anmeldungen 2021.xlsx")
+
 auss_2016 <- read_excel("Rohdaten/Ausschreibungen 2016.xlsx")
 auss_2017 <- read_excel("Rohdaten/Ausschreibungen 2017.xlsx")
 auss_2018 <- read_excel("Rohdaten/Ausschreibungen 2018.xlsx")
@@ -81,7 +84,9 @@ auss_2021 <- read_excel("Rohdaten/Ausschreibungen 2021.xlsx")
 auss_2022 <- read_excel("Rohdaten/Ausschreibungen 2022.xlsx")
 ```
 
-```{r Anmeldungen bearbeiten, include = FALSE}
+## Anmeldungen
+
+```{r Anmeldungen_bearbeiten, include = FALSE}
 temp2016 <- c(
   "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
@@ -126,9 +131,11 @@ temp2021 <- c(
   "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
-anm_2021_klein <- anm_2021[temp2020]
+anm_2021_klein <- anm_2021[temp2021]
 remove(temp2021, anm_2021)
+```
 
+```{r create_anm_total, include = FALSE}
 # Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
 anm_total <- rbind(anm_2016_klein, 
                    anm_2017_klein, 
@@ -136,7 +143,9 @@ anm_total <- rbind(anm_2016_klein,
                    anm_2019_klein, 
                    anm_2020_klein,
                    anm_2021_klein)
+```
 
+```{r anmeldungen_bereinigen, include = FALSE}
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
 anm_total <- anm_total[!anm_total$Aktivitaet == "Testtour Anmeldung", ]
 
@@ -169,14 +178,16 @@ colnames(anm_total)[colnames(anm_total) == "alter"] <- "TN_alter"
 colnames(anm_total)[colnames(anm_total) == "alter_korr"] <- "TN_alter_korr"
 ```
 
-```{r Ausschreibungen bearbeiten, include = FALSE}
+## Ausschreibungen
+
+```{r Ausschreibungen_bearbeiten, include = FALSE}
 # ** Zu behaltende Variablen definieren ----
 
 # 2016
 
 temp2016 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2016_klein <- auss_2016[temp2016]
 remove(temp2016, auss_2016)
@@ -185,7 +196,7 @@ remove(temp2016, auss_2016)
 
 temp2017 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2017_klein <- auss_2017[temp2017]
 remove(temp2017, auss_2017)
@@ -194,7 +205,7 @@ remove(temp2017, auss_2017)
 
 temp2018 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2018_klein <- auss_2018[temp2018]
 remove(temp2018, auss_2018)
@@ -203,7 +214,7 @@ remove(temp2018, auss_2018)
 
 temp2019 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2019_klein <- auss_2019[temp2019]
 remove(temp2019, auss_2019)
@@ -212,7 +223,7 @@ remove(temp2019, auss_2019)
 
 temp2020 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2020_klein <- auss_2020[temp2020]
 remove(temp2020, auss_2020)
@@ -221,7 +232,7 @@ remove(temp2020, auss_2020)
 
 temp2021 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2021_klein <- auss_2021[temp2021]
 remove(temp2021, auss_2021)
@@ -230,17 +241,26 @@ remove(temp2021, auss_2021)
 
 temp2022 <- c(
   "Aktivitaet", "Startdatum", "Gruppe", "Tourtyp", "Tourtyp lang", "Techn. Anforderungen",
-  "Kond. Anforderungen", "Name", "Vorname", "Status"
+  "Kond. Anforderungen", "Status"
 )
 auss_2022_klein <- auss_2022[temp2022]
 remove(temp2022, auss_2022)
+```
 
+```{r ausschreibungen_verbinden, include=FALSE}
 # Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
 auss_total <- rbind(
-  auss_2016_klein, auss_2017_klein, auss_2018_klein, auss_2019_klein,
-  auss_2020_klein, auss_2021_klein, auss_2022_klein
+  auss_2016_klein, 
+  auss_2017_klein, 
+  auss_2018_klein, 
+  auss_2019_klein,
+  auss_2020_klein
+  # auss_2021_klein, 
+  # auss_2022_klein
 )
+```
 
+```{r ausschreibungen_bereinigen}
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
 auss_total <- auss_total[!auss_total$Aktivitaet == "Testtour Anmeldung", ]
 
@@ -374,7 +394,6 @@ digits = 1
 )
 ```
 
-
 ```{r alter_jahr,fig.cap="Altersverteilung der Anmeldungen nach Jahr und Geschlecht", warning=F}
 
 anm_total %>%
@@ -401,6 +420,17 @@ anm_total %>%
 ### Anmeldungen im Corona-Jahr 2020
 
 In Abbildung \ref{fig:anmeldungen_2020} ist die Verteilung der Anmeldungen im Jahr 2020 ersichtlich. Klar zu sehen ist der starke Rückgang an Anmeldungen ab ca. Mitte März (Lockdown), gefolgt von einem Anstieg der Sommertouren und dem neuerlichen Rückgang ab ca. Mitte Oktober (eine Säule steht für jeweils einen halben Monat). Als Vergleich dient Abbildung \ref{fig:anmeldungen_2019}, welche einen viel gleichmässigeren Saisonverlauf zeigt.
+
+```{r anmeldungen_2021, fig.cap="Verlauf der Anmeldungen im Jahr 2021 (alle Anlässe der Sektion)"}
+anm_total %>%
+  filter(Startdatum >= as.POSIXct("2021-01-01") & Startdatum <= as.POSIXct("2021-12-31")) %>%
+  ggplot(aes(x = Startdatum)) +
+  geom_histogram(bins = 52) +
+  labs(
+    x = "Datum des Anlasses",
+    y = "Anzahl Anmeldungen"
+  )
+```
 
 ```{r anmeldungen_2020, fig.cap="Verlauf der Anmeldungen im Jahr 2020 (alle Anlässe der Sektion)"}
 anm_total %>%
