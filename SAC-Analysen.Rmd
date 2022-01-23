@@ -30,7 +30,13 @@ library(dplyr) # Für spätere Analysen
 library(ggplot2) # Für spätere Abbildungen
 library(janitor) # Für Datenbereinigung und Tabellen
 library(stringr) # Für die Arbeit mit Strings
+library(here) # Für saubere Pfade
 ```
+
+```{r set_here, include = FALSE}
+here::here()
+```
+
 
 \newpage
 
@@ -69,20 +75,20 @@ Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
     -   Geschlecht (anhand der Anrede)
 
 ```{r Einlesen_Daten_Anmeldung _und_Ausschreibungen, include = FALSE}
-anm_2016 <- read_excel("Rohdaten/Anmeldungen 2016.xlsx")
-anm_2017 <- read_excel("Rohdaten/Anmeldungen 2017.xlsx")
-anm_2018 <- read_excel("Rohdaten/Anmeldungen 2018.xlsx")
-anm_2019 <- read_excel("Rohdaten/Anmeldungen 2019.xlsx")
-anm_2020 <- read_excel("Rohdaten/Anmeldungen 2020.xlsx")
-anm_2021 <- read_excel("Rohdaten/Anmeldungen 2021.xlsx")
+anm_2016 <- read_excel(here("Rohdaten", "Anmeldungen 2016.xlsx"))
+anm_2017 <- read_excel(here("Rohdaten", "Anmeldungen 2017.xlsx"))
+anm_2018 <- read_excel(here("Rohdaten", "Anmeldungen 2018.xlsx"))
+anm_2019 <- read_excel(here("Rohdaten", "Anmeldungen 2019.xlsx"))
+anm_2020 <- read_excel(here("Rohdaten", "Anmeldungen 2020.xlsx"))
+anm_2021 <- read_excel(here("Rohdaten", "Anmeldungen 2021.xlsx"))
 
-auss_2016 <- read_excel("Rohdaten/Ausschreibungen 2016.xlsx")
-auss_2017 <- read_excel("Rohdaten/Ausschreibungen 2017.xlsx")
-auss_2018 <- read_excel("Rohdaten/Ausschreibungen 2018.xlsx")
-auss_2019 <- read_excel("Rohdaten/Ausschreibungen 2019.xlsx")
-auss_2020 <- read_excel("Rohdaten/Ausschreibungen 2020.xlsx")
-auss_2021 <- read_excel("Rohdaten/Ausschreibungen 2021.xlsx")
-auss_2022 <- read_excel("Rohdaten/Ausschreibungen 2022.xlsx")
+auss_2016 <- read_excel(here("Rohdaten", "Ausschreibungen 2016.xlsx"))
+auss_2017 <- read_excel(here("Rohdaten", "Ausschreibungen 2017.xlsx"))
+auss_2018 <- read_excel(here("Rohdaten", "Ausschreibungen 2018.xlsx"))
+auss_2019 <- read_excel(here("Rohdaten", "Ausschreibungen 2019.xlsx"))
+auss_2020 <- read_excel(here("Rohdaten", "Ausschreibungen 2020.xlsx"))
+auss_2021 <- read_excel(here("Rohdaten", "Ausschreibungen 2021.xlsx"))
+auss_2022 <- read_excel(here("Rohdaten", "Ausschreibungen 2022.xlsx"))
 ```
 
 ## Anmeldungen
