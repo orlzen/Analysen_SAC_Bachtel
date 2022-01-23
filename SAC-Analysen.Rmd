@@ -24,6 +24,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r packages, include = FALSE}
+library(readxl) # Import von Excel
+library(dplyr) # Für spätere Analysen
+library(ggplot2) # Für spätere Abbildungen
+library(janitor) # Für Datenbereinigung und Tabellen
+library(stringr) # Für die Arbeit mit Strings
+```
+
 \newpage
 
 # Einleitung
@@ -59,13 +67,6 @@ Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
 
     -   Alter (anhand Jahr des Anlasses und Geburtsdatum)
     -   Geschlecht (anhand der Anrede)
-
-```{r packages, include = FALSE}
-library(readxl) # Import von Excel
-library(dplyr) # Für spätere Analysen
-library(ggplot2) # Für spätere Abbildungen
-library(janitor) # Für Datenbereinigung und Tabellen
-```
 
 ```{r Einlesen_Daten_Anmeldung _und_Ausschreibungen, include = FALSE}
 anm_2016 <- read_excel("Rohdaten/Anmeldungen 2016.xlsx")
@@ -254,9 +255,9 @@ auss_total <- rbind(
   auss_2017_klein, 
   auss_2018_klein, 
   auss_2019_klein,
-  auss_2020_klein
-  # auss_2021_klein, 
-  # auss_2022_klein
+  auss_2020_klein,
+  auss_2021_klein,
+  auss_2022_klein
 )
 ```
 
@@ -270,6 +271,9 @@ colnames(auss_total)[colnames(auss_total) == "Name"] <- "TL_Nachname"
 
 # Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
 auss_total$jahr <- as.numeric(format(auss_total$Startdatum, "%Y")) # Ausschreibungen
+
+# Status korrigieren (alt: "/ausgebucht", neu: "ausgebucht" [ohne slash])
+auss_total$Status <- str_replace_all(auss_total$Status, '/', '')
 ```
 
 ```{r Datensätze Anmeldungen & Ausschreibungen zusammenfügen, include = FALSE}
