@@ -5,3 +5,9 @@
 
 # Data folder
 Rohdaten/
+
+# Log files
+SAC-Analyse.log
+
+# OUtput pdf
+SAC-Analysen.pdf
