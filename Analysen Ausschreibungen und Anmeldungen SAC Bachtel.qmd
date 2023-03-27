@@ -1,8 +1,11 @@
 ---
-title: "SAC Bachtel Analysen Anmeldungen & Ausschreibungen"
-author: "Lorenz Biberstein, Tourenchef Sommer & Schneeschuhe"
+title: "SAC Bachtel"
+subtitle: "Auswertung der Anmeldungen & Ausschreibungen"
+author: "Lorenz Biberstein"
+institute: "Tourenchef Sommer & Schneeschuhe"
 date: "`r Sys.time()`"
 date-format: medium
+title-block-banner: "grey"
 format: 
   html:
     embed-resources: true
@@ -14,11 +17,11 @@ toc-location: left
 number-sections: true
 number-depth: 3
 lang: "de-DE"
+css: styles.css
 ---
 
 ```{r global setup}
 #| include = FALSE
-
 
 # global options für alle Abbildungen: 50% Breite und Ausrichtung zentriert
 knitr::opts_chunk$set(
@@ -38,38 +41,41 @@ library(ggplot2) # Für spätere Abbildungen
 library(janitor) # Für Datenbereinigung und Tabellen
 library(stringr) # Für die Arbeit mit Strings
 library(here) # Für saubere Pfade
+library(vtable) # Für Übersichtstabellen
 ```
 
 # Einleitung
 
 Dieses Dokument analysiert die Ausschreibungen und Anmeldungen der Sektionsanlässe des [SAC Bachtel](http://www.sac-bachtel.ch). Analysen sind möglich für die Jahre ab 2016, seit der Einführung von DropTours.
 
-Dazu werden von DropTours die gesamten Ausschreibungen und Anmeldungen heruntergeladen, bearbeitet (entfernen überflüssiger Informationen) und zusammengefügt zu einem Datensatz, welcher alle Anmeldungen kombiniert mit den jeweiligen Informationen zu den Anlässen. Nachfolgend wird der Prozess etwas genauer beschrieben.
+Dazu werden von DropTours die gesamten Ausschreibungen und Anmeldungen für jedes Jahr heruntergeladen und bearbeitet (entfernen überflüssiger Informationen, Bereinigung einiger Informationen) und zusammengefügt zu einem Datensatz. In @sec-datenvorbereitung wird der Datenaufbereteitungsprozess genauer beschrieben, in @sec-datenuebersicht die zur Verfügung stehenden Informationen. In @sec-analysen sind die Analysen zu finden.
 
-# Datenvorbereitung
+## Datenvorbereitung {#sec-datenvorbereitung}
 
 Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
 
 1.  Manuelles herunterladen der Excel der Anmeldungen und Ausschreibungen von [DropTours](http://www.sac-bachtel.ch/manager)
 
-2.  Manuelles bearbeiten der Excel:
+2.  Manuelles bearbeiten der Excel, da diese nicht sauber formatiert sind nach dem Herunterladen:
 
     -   Abspeichern im .xlsx-Format
     -   Umbenennen der "Aktivität" in "Aktivitaet"; diese Spalte muss einheitlich sein für das spätere Zusammenfügen von Anmeldungen und Ausschreibungen
 
-3.  Einlesen der Daten der Anmeldungen und Ausschreibungen
+3.  Einlesen der Daten der Anmeldungen und Ausschreibungen in das Statistikprogramm R
 
 4.  Bearbeitung der Anmeldungen:
 
-    -   Es werden nur das Geschlecht, Name & Vorname, PLZ, Ort, Vegetarier, Kürzel, Geburtsjahr, Aktivität, Startdatum und Status behalten, der Rest wird gelöscht.
+    -   Es werden nur das Geschlecht, PLZ & Ort der Teilnehmer:innen, Vegetarier, Kürzel, Geburtsjahr, Aktivität, Startdatum und Status behalten, der Rest wird gelöscht.
 
 5.  Bearbeitung der Ausschreibungen:
 
     -   Es wird nur Aktivität, Startdatum, Tourtyp (lang und kurz), die technischen und konditionellen Anforderungen, sowie Name und Vorname des Tourenleiters behalten.
 
+    -   Die Variable "Gruppen" wird vereinfacht, da viele Anlässe für mehrere Gruppen gleichzeitig ausgeschrieben sind. So wurden z.B. Ausschreibungen, welche für "Sektion\|Senioren\|Frauen" angeboten waren, zu den Ausschreibungen der Sektion dazugezählt. So verbleiben am Ende noch Ausschreibungen für die Frauengruppe, die Jugend, die Seniorengruppe und die Sektion.
+
 6.  Die Datensätze aus Anmeldungen und Ausschreibungen werden anhand der Spalte `Aktivitaet` zusammengefügt
 
-7.  Neue Variablen werden gebildet:
+7.  Einige Variablen müssen neu werden gebildet, da sie nicht enthalten sind in den Originaldaten von DropTours:
 
     -   Alter (anhand Jahr des Anlasses und Geburtsdatum)
     -   Geschlecht (anhand der Anrede)
@@ -95,7 +101,7 @@ auss_2023 <- read_excel(here("Rohdaten", "Ausschreibungen 2023.xlsx"))
 
 ```{r Anmeldungen_bearbeiten}
 temp2016 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2016_klein <- anm_2016[temp2016]
@@ -103,7 +109,7 @@ remove(temp2016, anm_2016)
 
 # 2017
 temp2017 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2017_klein <- anm_2017[temp2017]
@@ -111,7 +117,7 @@ remove(temp2017, anm_2017)
 
 # 2018
 temp2018 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2018_klein <- anm_2018[temp2018]
@@ -119,7 +125,7 @@ remove(temp2018, anm_2018)
 
 # 2019
 temp2019 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2019_klein <- anm_2019[temp2019]
@@ -127,7 +133,7 @@ remove(temp2019, anm_2019)
 
 # 2020
 temp2020 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2020_klein <- anm_2020[temp2020]
@@ -135,7 +141,7 @@ remove(temp2020, anm_2020)
 
 # 2021
 temp2021 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2021_klein <- anm_2021[temp2021]
@@ -143,7 +149,7 @@ remove(temp2021, anm_2021)
 
 # 2022
 temp2022 <- c(
-  "Anrede", "Name", "Vorname", "PLZ", "Ort", "Vegetarier", "Kuerzel",
+  "Anrede", "PLZ", "Ort", "Vegetarier", "Kuerzel",
   "Geburtsjahr", "Aktivitaet", "Startdatum", "Status"
 )
 anm_2022_klein <- anm_2022[temp2022]
@@ -183,8 +189,6 @@ anm_total$TN_geschlecht <- replace(anm_total$TN_geschlecht, anm_total$TN_geschle
 
 # Informationen der TN: Spaltennamen ändern
 
-colnames(anm_total)[colnames(anm_total) == "Vorname"] <- "TN_Vorname"
-colnames(anm_total)[colnames(anm_total) == "Name"] <- "TN_Name"
 colnames(anm_total)[colnames(anm_total) == "PLZ"] <- "TN_PLZ"
 colnames(anm_total)[colnames(anm_total) == "Ort"] <- "TN_Ort"
 colnames(anm_total)[colnames(anm_total) == "Vegetarier"] <- "TN_Vegetarier"
@@ -270,7 +274,7 @@ auss_2023_klein <- auss_2023[temp2023]
 remove(temp2023, auss_2023)
 ```
 
-```{r ausschreibungen_verbinden, include=FALSE}
+```{r ausschreibungen_verbinden}
 # Alle Jahre kombinieren zu einem Datensatz mit oben ausgewählten Variablen
 auss_total <- rbind(
   auss_2016_klein, 
@@ -288,10 +292,6 @@ auss_total <- rbind(
 # Fälle ausschliessen, wenn "Aktivität" = "Testtour Anmeldung" (Test-Anmeldungen)
 auss_total <- auss_total[!auss_total$Aktivitaet == "Testtour Anmeldung", ]
 
-# Name & Vorname TL: Spalten umbenennen
-colnames(auss_total)[colnames(auss_total) == "Vorname"] <- "TL_Vorname"
-colnames(auss_total)[colnames(auss_total) == "Name"] <- "TL_Nachname"
-
 # Variable für Jahr des Anlasses (Startdatum) definieren; als neue Spalte definieren!
 auss_total$jahr <- as.numeric(format(auss_total$Startdatum, "%Y")) # Ausschreibungen
 
@@ -299,17 +299,69 @@ auss_total$jahr <- as.numeric(format(auss_total$Startdatum, "%Y")) # Ausschreibu
 auss_total$Status <- str_replace_all(auss_total$Status, '/', '')
 ```
 
+```{r Gruppen_bereinigen}
+auss_total$Gruppe <- str_replace_all(auss_total$Gruppe," ","")
+
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Alle", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Jugend\\|Senioren\\|Frauen", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Senioren\\|Frauen", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Jugend\\|Senioren", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Senioren", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Jugend", "Sektion")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Sektion\\|Frauen", "Senioren")
+auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Senioren\\|Frauen", "Senioren")
+
+```
+
 ```{r Datensätze Anmeldungen & Ausschreibungen zusammenfügen}
 total <- merge(auss_total, anm_total)
 ```
 
-# Analysen
+## Übersicht Informationen {#sec-datenuebersicht}
+
+Nach der Bereinigung und Aufbereitung der Daten stehen die folgenden Informationen zur Verfügung (@tbl-ausschreibungen-infos für die Informationen aus den Ausschreibungen, @tbl-anmeldungen-infos für die Informationen aus den Anmeldungen):
+
+| Name                      | Bemerkung                                                        |
+|----------------------|--------------------------------------------------|
+| Aktivität                 | Name der Aktivität / Tour / Ausschreibung                        |
+| Startdatum                | Startdatum der Aktivität                                         |
+| Gruppe                    | Für welche Gruppe wurde die Aktivität ausgeschrieben?            |
+| Tourtyp                   | Tourtyp der Aktivität (S, HT, W etc.)                            |
+| Tourtyp lang              | Tourtyp der Aktivität (Skitour, Hochtour, Wanderung etc.)        |
+| Technische Anforderung    | Je nach Tourtyp unterschiedlich (WS-, ZS, T3 etc.)               |
+| Konditionelle Anforderung | Auf der Skala von A (tiefe Anforderung) bis D (hohe Anforderung) |
+| Status                    | Status der Aktivität (abgesagt, neues Datum, ausgebucht etc.)    |
+| Jahr                      | In welchem Jahr wurde die Aktivität ausgeschrieben               |
+
+: Übersicht Informationen aus Ausschreibungen {#tbl-ausschreibungen-infos}{tbl-colwidths="\[35,65\]"}
+
+| Name        | Bemerkung                                                     |
+|------------------|------------------------------------------------------|
+| Geschlecht  | Geschlecht des / der TN                                       |
+| Alter       | Alter des / der TN                                            |
+| PLZ         | Postleitzahl des / der TN                                     |
+| Ort         | Ort des / der TN                                              |
+| Vegetarier  | Ist TN Vegetarier ja / nein                                   |
+| Kürzel      | Mitgliedernummer / Kürzel des / der TN                        |
+| Geburtsjahr | Geburtsjahr des / der TN                                      |
+| Aktivität   | Name der Aktivität / Tour / Ausschreibung                     |
+| Startdatum  | Startdatum der Aktivität                                      |
+| Status      | Status der Aktivität (abgesagt, neues Datum, ausgebucht etc.) |
+| Jahr        | In welchem Jahr wurde die Aktivität ausgeschrieben            |
+
+: Übersicht Informationen aus Anmeldungen {#tbl-anmeldungen-infos}{tbl-colwidths="\[35,65\]"}
+
+::: callout-warning
+## Einschränkungen
+
+Bei den nachfolgenden Analysen gibt es einige Einschränkungen zu beachten: DropTours wird nicht benutzt, um Daten zu sammeln für eine strukturierte Analyse, sondern zur Verwaltung von Touren. Entsprechend gibt es einige Schwachstellen in den Daten, die Daten werden in DropTours nicht immer sauber gepflegt. Bspw. ist die Analyse des Tourenstatus (@sec-tourenstatus) sehr vorsichtig zu interpretieren, da kaum immer alle Tourenleiter:innen den Status ihrer Touren immer konsequent ändern, wenn eine Tour voll ist ("ausgebucht"), auf ein neues Datum verschoben werden musste ("neues Datum") oder ganz abgesagt werden musste ("abgesagt"). Ebenso kommt es ab und zu vor, dass sich Tourenleiter:innen auf den eigenen Touren selbst als Teilnehmende eintragen, was wiederum die Anzahl Anmeldungen verfälscht. Diese Analysen sollten also besser als grobe Richtwerte gesehen werden!
+:::
+
+# Analysen {#sec-analysen}
 
 ## Analyse der Anmeldungen
 
-### Geschlecht
-
-Nachfolgend einige Analysen zu den absoluten Anmeldungen. In Abbildung @fig-anmeldungen-jahr sind die Anzahl Anmeldungen pro Jahr ersichtlich, in Abbildung @fig-anmeldungen-jahr-geschlecht sind sie nach Geschlecht getrennt. Beide Abbildungen zeigen klar den Corona-bedingten Rückgang an Anmeldungen im Jahr 2020. Die zweite Abbildung zeigt zudem, wie die Anzahl Anmeldungen von weiblichen Mitgliedern seit 2016 am steigen war, während die Männer von 2017 auf 2018 sogar einen leichten Rückgang erlitten bei den Anmeldungen.
+Nachfolgend einige Analysen zu den Anmeldungen. Dabei wird die Geschlechter- und Altersverteilung der angemeldeten Teilnehmer:innen betrachtet, sowie die Anzahl Teilnehmer:innen pro Aktivität. In @fig-anmeldungen-jahr sind die Anzahl Anmeldungen pro Jahr ersichtlich, wobei sich relativ klar der Rückgang der Anmeldungen im Corona-Jahr 2020 zeigt, gefolgt von einem Anstieg.
 
 ```{r Anmeldungen_Jahr}
 #| label: fig-anmeldungen-jahr
@@ -331,6 +383,10 @@ anm_total %>%
     aes(label = ..count..), position = position_stack(vjust = 0.5)
   )
 ```
+
+### Geschlecht
+
+In  @fig-anmeldungen-jahr-geschlecht sind die Anmeldungen nach Geschlecht getrennt. 
 
 ```{r Anmeldungen_Jahr_Geschlecht}
 #| label: fig-anmeldungen-jahr-geschlecht
@@ -356,8 +412,7 @@ anm_total %>%
 
 ### Alter
 
-Nachfolgend werden die Durchschnittsalter der Teilnehmenden nach Jahr (beide Geschlechter zusammen) und nach Geschlecht (alle Jahre zusammen) gezeigt. Es ist ersichtlich, dass einerseits das Durchschnittsalter der Teilnehmenden lange gesunken ist und jetzt wieder anzusteigen scheint (@tbl-durchschnittsalter und @tbl-durchschnittsalter-median) und die Teilnehmerinnen im Durchschnitt jünger sind als die Teilnehmer (@tbl-durchschnittsalter-geschlecht für den Mittelwert und @tbl-durchschnittsalter-geschlecht-median für den Median). Der Tiefpunkt sowohl beim Mittelwert- als auch beim Medianalter im Jahr 2022 könnte jedoch auch auf die Corona-Pandemie zuruckzuführen sein, wobei sich die älteren Teilnehmer:innen noch zurückhaltender verhielten und sich weniger auf Touren anmeldeten.
-
+Nachfolgend werden die Durchschnittsalter der Teilnehmenden nach Jahr (beide Geschlechter zusammen) und nach Geschlecht (alle Jahre zusammen) gezeigt. Es ist ersichtlich, dass einerseits das Durchschnittsalter der Teilnehmenden lange gesunken ist und jetzt wieder anzusteigen scheint (@tbl-durchschnittsalter) und die Teilnehmerinnen im Durchschnitt jünger sind als die Teilnehmer (@tbl-durchschnittsalter-geschlecht). Der Tiefpunkt beim Durchschnittsalter im Jahr 202 könnte jedoch auch auf die Corona-Pandemie zuruckzuführen sein, wobei sich die älteren Teilnehmer:innen noch zurückhaltender verhielten und sich weniger auf Touren anmeldeten.
 
 ```{r}
 #| label: tbl-durchschnittsalter
@@ -375,6 +430,7 @@ knitr::kable(anm_total %>%
 ```{r}
 #| label: tbl-durchschnittsalter-median
 #| tbl-cap: "Durchschnittsalter (Median) der Anmeldungen pro Jahr"
+#| include: FALSE
 
 knitr::kable(anm_total %>%
                group_by(jahr) %>%
@@ -385,13 +441,12 @@ knitr::kable(anm_total %>%
              digits = 1)
 ```
 
-
 ```{r}
 #| label: tbl-durchschnittsalter-geschlecht
 #| tbl-cap: "Durchschnittsalter (Mittelwert) aller Anmeldungen nach Geschlecht"
 
 
-knitr::kable(total %>%
+knitr::kable(anm_total %>%
                group_by(TN_geschlecht) %>%
                summarize(mw_alter = mean(TN_alter_korr, 
                                          na.rm = TRUE)),
@@ -403,9 +458,10 @@ knitr::kable(total %>%
 ```{r}
 #| label: tbl-durchschnittsalter-geschlecht-median
 #| tbl-cap: "Durchschnittsalter (Median) aller Anmeldungen nach Geschlecht"
+#| include: FALSE
 
 
-knitr::kable(total %>%
+knitr::kable(anm_total %>%
                group_by(TN_geschlecht) %>%
                summarize(med_alter = median(TN_alter_korr, 
                                             na.rm = TRUE)),
@@ -414,11 +470,12 @@ knitr::kable(total %>%
              digits = 1)
 ```
 
-Die Altersbreite in der Sektion ist offensichtlich sehr gross; wenn man nur die Anmeldungen auf Sektionstouren anschaut, liegt das Durchschnittsalter offensichtlich tiefer (@tbl-durchschnittsalter-geschlecht-sektion und @tbl-durchschnittsalter-geschlecht-median-sektion).
+<!-- Die Altersbreite in der Sektion ist offensichtlich sehr gross; wenn man nur die Anmeldungen auf Sektionstouren anschaut, liegt das Durchschnittsalter offensichtlich tiefer (@tbl-durchschnittsalter-geschlecht-sektion und @tbl-durchschnittsalter-geschlecht-median-sektion). -->
 
 ```{r}
 #| label: tbl-durchschnittsalter-geschlecht-sektion
 #| tbl-cap: "Durchschnittsalter (Mittelwert) aller Anmeldungen nach Geschlecht (nur Sektion)"
+#| include: FALSE
 
 
 knitr::kable(total %>%
@@ -434,6 +491,7 @@ knitr::kable(total %>%
 ```{r}
 #| label: tbl-durchschnittsalter-geschlecht-median-sektion
 #| tbl-cap: "Durchschnittsalter (Median) aller Anmeldungen nach Geschlecht (nur Sektion)"
+#| include: FALSE
 
 
 knitr::kable(total %>%
@@ -446,16 +504,17 @@ knitr::kable(total %>%
              digits = 1)
 ```
 
-Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer Abbildung visualisieren: @fig-altersverteilung-geschlecht zeigt die Altersverteilung der Anmeldungen nach Geschlecht als Baumdiagramm, wobei breitere Stellen auf mehr Personen in diesem Alter hinweisen, schmälere auf weniger Personen. Dabei wird ersichtlich, dass:
+<!-- Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer Abbildung visualisieren: @fig-altersverteilung-geschlecht zeigt die Altersverteilung der Anmeldungen nach Geschlecht als Baumdiagramm, wobei breitere Stellen auf mehr Personen in diesem Alter hinweisen, schmälere auf weniger Personen. Dabei wird ersichtlich, dass: -->
 
--   Die Männer tendenziell länger an Sektionsanlässen teilnehmen (Spitze weiter oben)
--   Frauen eher ein tieferes Durchschnittsalter aufweisen (breiteste Stelle ist weiter unten)
--   Bei beiden Geschlechtern eine Häufung an Aktivitäten auftreten ca. im 55 Altersjahr, gefolgt von einem Rückgang ("Taille" ca. bei 60 Jahren), gefolgt von einem neuerlichen Anstieg nach der Pensionierung
--   Sowohl bei den Männern als auch bei den Frauen sind die meisten Teilnehmer:innen zwischen 65 und 75 Jahre alt sind
+<!-- -   Die Männer tendenziell länger an Sektionsanlässen teilnehmen (Spitze weiter oben) -->
+<!-- -   Frauen eher ein tieferes Durchschnittsalter aufweisen (breiteste Stelle ist weiter unten) -->
+<!-- -   Bei beiden Geschlechtern eine Häufung an Aktivitäten auftreten ca. im 55 Altersjahr, gefolgt von einem Rückgang ("Taille" ca. bei 60 Jahren), gefolgt von einem neuerlichen Anstieg nach der Pensionierung -->
+<!-- -   Sowohl bei den Männern als auch bei den Frauen sind die meisten Teilnehmer:innen zwischen 65 und 75 Jahre alt sind -->
 
 ```{r altersverteilung_geschlecht}
 #| label: fig-altersverteilung-geschlecht
 #| fig-cap: "Altersverteilung der Anmeldungen nach Geschlecht getrennt"
+#| include: FALSE
 
 
 anm_total %>%
@@ -476,11 +535,12 @@ anm_total %>%
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
 ```
 
-In Abbildung @fig-altersverteilung-geschlecht-jahr ist das Alter der angemeldeten Teilnehmer::innen zudem pro Jahr ersichtlich, links die Männer und rechts die Frauen. Der in @tbl-durchschnittsalter festgestellte Rückgang des Durchschnittsalter lässt sich so jedoch kaum visualisieren.
+<!-- In Abbildung @fig-altersverteilung-geschlecht-jahr ist das Alter der angemeldeten Teilnehmer::innen zudem pro Jahr ersichtlich, links die Männer und rechts die Frauen. Der in @tbl-durchschnittsalter festgestellte Rückgang des Durchschnittsalter lässt sich so jedoch kaum visualisieren. -->
 
 ```{r altersverteilung_jahr_geschlecht}
 #| label: fig-altersverteilung-geschlecht-jahr
 #| fig-cap: "Altersverteilung der Anmeldungen nach Jahr und Geschlecht getrennt"
+#| include: FALSE
 
 anm_total %>%
   ggplot(aes(
@@ -505,7 +565,7 @@ anm_total %>%
 ```{r alter_jahr}
 #| label: fig-altersverteilung-geschlecht-jahr-getrennt
 #| fig-cap: "Altersverteilung der Anmeldungen nach Jahr und Geschlecht"
-#| output: FALSE
+#| include: FALSE
 
 anm_total %>%
   ggplot(aes(
@@ -526,69 +586,176 @@ anm_total %>%
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))
 ```
 
-### Anzahl Teilnehmer pro Tour
+### Anzahl Teilnehmer:innen pro Tour
+
+#### Anzahl Anmeldungen allgemein
+
+In @fig-anmeldungen_total-pro-woche sind die Anzahl Anmeldungen pro *Kalenderwoche* für die Jahre 2016 bis 2022 ersichtlich. Man sieht klar, dass in den ca. ersten 10 Kalenderwochen am meisten Anmeldungen auf Anlässe der Sektion eingehen, bevor die Anzahl absinkt auf den Frühling hin, dann auf den Sommer nochmals leicht ansteigt. Gegen Ende Jahr gibt es sogar eine Phase ohne Anmeldungen (KW 47, Ende November, wo vielleicht gar keine Touren ausgeschrieben werden?).
+
+```{r}
+#| label: fig-anmeldungen_total-pro-woche
+#| fig-cap: "Verlauf der Anmeldungen pro Kalenderwoche für die Jahre 2016-2022"
+
+anm_total <- anm_total |> 
+  mutate(woche = lubridate::week(Startdatum))
+
+
+anm_total %>%
+  group_by(woche) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = woche, y = count)) + 
+  geom_line() + 
+  theme_minimal() +
+  labs(
+    x = "Kalenderwoche", 
+    y = "Anzahl Anmeldungen"
+  ) +
+  geom_smooth()
+```
+
+<!-- In @fig-anmeldungen_total-pro-woche-alle-jahre sind die Anzahl Anmeldungen pro Woche für alle Wochen von Anfang 2016 bis Ende 2022 ersichtlich. Auch hier ist der Rückgang der Anmeldungen im Frühling 2020 klar ersichtlich. -->
+
+```{r}
+# Erster Wochentag pro Startdatum bestimmen (ungefähr als Proxy für Woche)
+anm_total <- anm_total |> 
+  mutate(woche_kont = as.Date(lubridate::floor_date(Startdatum, unit = "week")))
+```
+
+```{r}
+#| label: fig-anmeldungen_total-pro-woche-alle-jahre
+#| fig-cap: "Verlauf der Anmeldungen pro Woche für die Jahre 2016-2022"
+#| include: FALSE
+
+ggplot(anm_total) +
+  aes(x = woche_kont) +
+  geom_bar(fill = "grey") +
+  theme_minimal() +
+  scale_x_date(date_breaks = "3 months") +
+  labs(
+    x = "Wochenstart", 
+    y = "Anzahl Anmeldungen pro Woche"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
 
 #### Anmeldungen im Corona-Jahr 2020
 
-In Abbildung @fig-anmeldungen_2020 ist die Verteilung der Anmeldungen im Jahr 2020 ersichtlich. Klar zu sehen ist der starke Rückgang an Anmeldungen ab ca. Mitte März (Lockdown), gefolgt von einem Anstieg der Sommertouren und dem neuerlichen Rückgang ab ca. Mitte Oktober (eine Säule steht für ca. eine Woche). Als Vergleich dienen @fig-anmeldungen_2021 und @fig-anmeldungen_2019, welche einen viel gleichmässigeren Saisonverlauf zeigen.
+In Abbildung @fig-anmeldungen_2019-2022 sind die Anmeldungen pro Kalenderwoche für die Jahre 2019 bis 2022 ersichtlich. Klar zu sehen ist der starke Rückgang an Anmeldungen ab ca. Mitte März (Lockdown) im Jahr 2020, gefolgt von einem Anstieg der Sommertouren und dem neuerlichen Rückgang ab ca. Mitte Oktober. Im Vergleich sind die Anmeldezahlen der anderen Jahre um einiges stabiler im Jahresverlauf (mit Ausnahme des Jahres 2022, welches in den ersten Kalenderwochen sehr viele Anmeldungen verzeichnete).
 
-```{r anmeldungen_2020}
+```{r}
 #| label: fig-anmeldungen_2020
-#| fig-cap: "Verlauf der Anmeldungen im Jahr 2020 (alle Anlässe der Sektion)"
+#| fig-cap: "Verlauf der Anmeldungen im Jahr 2020 (Anzahl Anmeldungen pro Woche; alle Anlässe der Sektion)"
+#| include: FALSE
 
+
+anm_total <- anm_total |> 
+  mutate(woche = lubridate::week(Startdatum))
 
 anm_total %>%
   filter(Startdatum >= as.POSIXct("2020-01-01") & Startdatum <= as.POSIXct("2020-12-31")) %>%
-  ggplot(aes(x = Startdatum)) +
-  geom_histogram(bins = 52, fill = "grey") +
+  group_by(woche) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = woche, y = count)) + 
+  geom_line() + 
   theme_minimal() +
+  scale_y_continuous(limits = c(0, 150)) +
+  # scale_x_date(date_breaks = "1 year",
+  #              date_labels = "%d %b %y") +
   labs(
-    x = "Datum des Anlasses",
+    x = "Kalenderwoche", 
     y = "Anzahl Anmeldungen"
-  )
+  ) +
+  geom_smooth()
 ```
 
-```{r anmeldungen_2021}
-#| label: fig-anmeldungen_2021
-#| fig-cap: "Verlauf der Anmeldungen im Jahr 2021 (alle Anlässe der Sektion)"
-
-
-anm_total %>%
-  filter(Startdatum >= as.POSIXct("2021-01-01") & Startdatum <= as.POSIXct("2021-12-31")) %>%
-  ggplot(aes(x = Startdatum)) +
-  geom_histogram(bins = 52, fill = "grey") +
-  theme_minimal() +
-  labs(
-    x = "Datum des Anlasses",
-    y = "Anzahl Anmeldungen"
-  )
-```
-
-```{r anmeldungen_2019}
+```{r}
 #| label: fig-anmeldungen_2019
-#| fig-cap: "Verlauf der Anmeldungen im Jahr 2019 (alle Anlässe der Sektion)"
+#| fig-cap: "Verlauf der Anmeldungen im Jahr 2019 (Anzahl Anmeldungen pro Woche; alle Anlässe der Sektion)"
+#| include: FALSE
 
+
+anm_total <- anm_total |> 
+  mutate(woche = lubridate::week(Startdatum))
 
 anm_total %>%
   filter(Startdatum >= as.POSIXct("2019-01-01") & Startdatum <= as.POSIXct("2019-12-31")) %>%
-  ggplot(aes(x = Startdatum)) +
-  geom_histogram(bins = 52, fill = "grey") +
+  group_by(woche) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = woche, y = count)) + 
+  geom_line() + 
   theme_minimal() +
+  scale_y_continuous(limits = c(0, 150)) +
+  # scale_x_date(date_breaks = "1 year",
+  #              date_labels = "%d %b %y") +
   labs(
-    x = "Datum des Anlasses",
+    x = "Kalenderwoche", 
     y = "Anzahl Anmeldungen"
-  )
+  ) +
+  geom_smooth()
 ```
+
+```{r}
+#| label: fig-anmeldungen_2021
+#| fig-cap: "Verlauf der Anmeldungen im Jahr 2021 (Anzahl Anmeldungen pro Woche; alle Anlässe der Sektion)"
+#| include: FALSE
+
+
+anm_total <- anm_total |> 
+  mutate(woche = lubridate::week(Startdatum))
+
+anm_total %>%
+  filter(Startdatum >= as.POSIXct("2021-01-01") & Startdatum <= as.POSIXct("2021-12-31")) %>%
+  group_by(woche) %>%
+  summarise(count = n()) %>%
+  ggplot(aes(x = woche, y = count)) + 
+  geom_line() + 
+  theme_minimal() +
+  scale_y_continuous(limits = c(0, 150)) +
+  # scale_x_date(date_breaks = "1 year",
+  #              date_labels = "%d %b %y") +
+  labs(
+    x = "Kalenderwoche", 
+    y = "Anzahl Anmeldungen"
+  ) +
+  geom_smooth()
+```
+
+```{r}
+#| label: fig-anmeldungen_2019-2022
+#| fig-cap: "Verlauf der Anmeldungen in den Jahren 2019 bis 2022 (Anzahl Anmeldungen pro Woche; alle Anlässe der Sektion)"
+
+
+anm_total <- anm_total |> 
+  mutate(woche = lubridate::week(Startdatum)) |> 
+  mutate(jahr = lubridate::year(Startdatum))
+
+anm_total %>%
+  filter(Startdatum >= as.POSIXct("2019-01-01") & Startdatum <= as.POSIXct("2022-12-31")) %>%
+  group_by(woche, jahr) %>%
+  summarise(count = n()) |> 
+  ggplot(aes(x = woche, y = count)) + 
+  geom_line() + 
+  theme_minimal() +
+  # scale_y_continuous(limits = c(0, 150)) +
+  # scale_x_date(date_breaks = "1 year",
+  #              date_labels = "%d %b %y") +
+  labs(
+    x = "Kalenderwoche", 
+    y = "Anzahl Anmeldungen") +
+  geom_smooth() +
+  facet_wrap(~jahr)
+```
+
 
 ## Analyse der Ausschreibungen
 
 ### Anzahl Ausschreibungen pro Jahr
 
-In @fig-ausschreibungen-pro-jahr sind die Anzahl Ausschreibungen nach Jahr ersichtlich. Es zeigt sich dabei, dass die Anzahl über die letzten Jahren stabil geblieben ist und ungefähr zwischen 400 und 420 Ausschreibungen schwankt. @fig-ausschreibungen-pro-jahr-senioren und @fig-ausschreibungen-pro-jahr-jugend zeigen die Anzahl Ausschreibungen pro Jahr für die Senioren-, resp. die Jugendgruppe (wobei die Ausschreibungen der JO noch nicht komplett scheinen).
+In @fig-ausschreibungen-pro-jahr ist die Anzahl *aller Ausschreibungen im Droptours* nach Jahr ersichtlich für die Jahre 2016 bis 2023. Es zeigt sich dabei, dass die Anzahl über die letzten Jahren stabil geblieben ist und ungefähr zwischen 400 und 440 Ausschreibungen schwankt. 
 
 ```{r ausschreibungen_jahr}
 #| label: fig-ausschreibungen-pro-jahr
-#| fig-cap: "Anzahl Ausschreibungen pro Jahr"
+#| fig-cap: "Anzahl Ausschreibungen pro Jahr (total Ausschreibungen)"
 
 
 auss_total %>%
@@ -610,6 +777,7 @@ auss_total %>%
 ```{r ausschreibungen_jahr_sektion}
 #| label: fig-ausschreibungen-pro-jahr-sektion
 #| fig-cap: "Anzahl Ausschreibungen pro Jahr (nur Sektion)"
+#| include: FALSE
 
 
 auss_total %>%
@@ -632,6 +800,7 @@ auss_total %>%
 ```{r ausschreibungen_jahr_senioren}
 #| label: fig-ausschreibungen-pro-jahr-senioren
 #| fig-cap: "Anzahl Ausschreibungen pro Jahr (nur Senioren)"
+#| include: FALSE
 
 auss_total %>%
   filter(Gruppe == "Senioren") |> 
@@ -653,6 +822,7 @@ auss_total %>%
 ```{r ausschreibungen_jahr_jugend}
 #| label: fig-ausschreibungen-pro-jahr-jugend
 #| fig-cap: "Anzahl Ausschreibungen pro Jahr (nur Jugend)"
+#| include: FALSE
 
 
 auss_total %>%
@@ -672,24 +842,55 @@ auss_total %>%
   )
 ```
 
-### Analyse der ausgeschriebenen Tourtypen
+### Analyse der ausgeschriebenen Tourtypen der Sektion
+In @fig-ausschreibungen-pro-jahr-tourtyp-alle ist die Anzahl ausgeschriebener Anlässe der Sektion (ohne Seniorengruppe und JO) pro Jahr für die Jahre 2016 bis 2023 ersichtlich, wobei sich ein leichter Anstieg zeigt. Zu beachten ist, dass im Jahr 2023 noch ein paar wenige Zusatztouren hinzukommen könnten.
 
-In Abbildung @fig-ausschreibungen-pro-jahr-tourtyp sind die Ausschreibungen nach Tourtyp und Jahr ersichtlich, wobei nur die folgenden Touren der Sektion (ohne JO) berücksichtigt wurden:
-
--   Skitouren
--   Schneeschuhtouren
--   Wanderungen
--   Hochtouren
--   Veranstaltungen
-
-Untersucht man die Anzahl Ausschreibungen differenzierter nach Tourtyp, zeigen sich doch die einen oder anderen Schwankungen. So ist z. B. die Anzahl ausgeschriebener Wanderungen seit 2019 stetig zurückgagangen, von `r count(auss_total %>% filter(jahr == 2019) %>% filter(Tourtyp == "W"))` über `r count(auss_total %>% filter(jahr == 2020) %>% filter(Tourtyp == "W"))` auf `r count(auss_total %>% filter(jahr == 2021) %>% filter(Tourtyp == "W"))`. Noch klarer zeigt sich das in @fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern, wo nur die Touren des Ressorts Wandern abgebildet sind.
-
-```{r tourtypen_jahr}
-#| label: fig-ausschreibungen-pro-jahr-tourtyp
-#| fig-cap: "Anzahl Ausschreibungen nach Tourtyp und Jahr"
+```{r}
+#| label: fig-ausschreibungen-pro-jahr-tourtyp-alle
+#| fig-cap: "Anzahl Ausschreibungen der Sektion nach Jahr"
 
 
 auss_total %>%
+  filter(Gruppe == "Sektion") |> 
+  ggplot(aes(x = jahr),
+    position = position_dodge(preserve = "single")
+  ) +
+  geom_bar(stat = "count", fill = "grey") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
+  ) +
+  theme_minimal() +
+  ylim(c(0, 250)) +
+  # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
+  stat_count(
+    geom = "text", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
+```
+
+
+<!-- Untersucht man die Anzahl Ausschreibungen differenzierter nach Tourtyp, zeigen sich doch die einen oder anderen Schwankungen. So ist z. B. die Anzahl ausgeschriebener Wanderungen seit 2019 stetig zurückgagangen, von `r count(auss_total %>% filter(jahr == 2019) %>% filter(Tourtyp == "W"))` über `r count(auss_total %>% filter(jahr == 2020) %>% filter(Tourtyp == "W"))` auf `r count(auss_total %>% filter(jahr == 2021) %>% filter(Tourtyp == "W"))`. Noch klarer zeigt sich das in @fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern-sektion, wo nur die Touren des Ressorts Wandern abgebildet sind. -->
+
+In Abbildung @fig-ausschreibungen-pro-jahr-tourtyp sind die Ausschreibungen der Sektion nach Tourtyp und Jahr ersichtlich, wobei nur die folgenden Tourtyoen berücksichtigt wurden:
+
+-   Hochtouren
+-   Klettertouren
+-   Schneeschuhtouren
+-   Skitouren
+-   Veranstaltungen
+-   Wanderungen
+
+```{r tourtypen_jahr}
+#| label: fig-ausschreibungen-pro-jahr-tourtyp
+#| fig-cap: "Anzahl Ausschreibungen der Sektion nach Tourtyp und Jahr"
+
+
+auss_total %>%
+  filter(Gruppe == "Sektion") |> 
   filter(Tourtyp %in% c("H", "W", "S", "SS", "V", "K")) %>%
   # filter(Gruppe %in% "Sektion") |> 
   ggplot(aes(x = jahr, fill = factor(`Tourtyp lang`)),
@@ -703,6 +904,7 @@ auss_total %>%
     fill = "Tourtyp"
   ) +
   theme_minimal() +
+  ylim(c(0, 250)) +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -711,13 +913,14 @@ auss_total %>%
   )
 ```
 
-In @fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern-sektion ist die Anzahl Ausschreibungen der Wanderungen, Berg- und Schneeschuhtouren der Sektion ersichtlich. Es wird dabei klar, dass die Anzahl der ausgeschriebenen Wanderungen und Schneeschuhtouren von 2020 auf 2021 relativ stark zurückgegangen ist[^1]. @fig-ausschreibungen-pro-jahr-tourtyp-senioren zeigt umgekehrt die Ausschreibungen der Seniorengruppe.
+<!-- In @fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern-sektion ist die Anzahl Ausschreibungen der Wanderungen, Berg- und Schneeschuhtouren der Sektion ersichtlich. Es wird dabei klar, dass die Anzahl der ausgeschriebenen Wanderungen und Schneeschuhtouren von 2020 auf 2021 relativ stark zurückgegangen ist[^1]. @fig-ausschreibungen-pro-jahr-tourtyp-senioren zeigt umgekehrt die Ausschreibungen der Seniorengruppe. -->
 
-[^1]: Zu bedenken ist, dass hier die Zusatztouren noch nicht ins Gewicht fallen, die evtl. im Laufe des Jahres noch dazukommen. Die Bilanz könnte sich also noch etwas verbessern
+<!-- [^1]: Zu bedenken ist, dass hier die Zusatztouren noch nicht ins Gewicht fallen, die evtl. im Laufe des Jahres noch dazukommen. Die Bilanz könnte sich also noch etwas verbessern -->
 
 ```{r tourtypen_jahr_w_sek}
 #| label: fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern-sektion
 #| fig-cap: "Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Sektion (ohne Senioren)"
+#| include: FALSE
 
 
 auss_total %>%
@@ -744,6 +947,7 @@ auss_total %>%
 ```{r tourtypen_jahr_w_sen}
 #| label: fig-ausschreibungen-pro-jahr-tourtyp-senioren
 #| fig-cap: "Anzahl Ausschreibungen nach Tourtyp und Jahr, nur Wandern, Bergtouren \\& Schneeschuhe, nur Anlässe der Senioren (ohne Sektion)"
+#| include: FALSE
 
 
 auss_total %>%
@@ -769,15 +973,15 @@ auss_total %>%
 
 ### Ausschreibungen nach Gruppe
 
-@fig-ausschreibungen-pro-jahr-nach-gruppe zeigt die Anzahl Ausschreibungen nach Gruppe.
+@fig-ausschreibungen-pro-jahr-nach-gruppe zeigt die Anzahl Ausschreibungen nach Gruppe, wobei sich die Auflösung der Frauengruppe auf das Jahr 2022 zeigt.
 
 ```{r gruppe}
 #| label: fig-ausschreibungen-pro-jahr-nach-gruppe
-#| fig-cap: "Ausgeschriebene Touren Gruppe pro Jahr, nur Sektion, Jugend \\& Senioren"
+#| fig-cap: "Ausgeschriebene Touren pro Gruppe nach Jahr"
 
 
 auss_total %>%
-  filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
+  # filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
   ggplot(aes(x = jahr, fill = factor(Gruppe)),
     position = position_dodge(preserve = "single")
   ) +
@@ -797,19 +1001,20 @@ auss_total %>%
   )
 ```
 
-### Status der Touren
+### Status der Touren {#sec-tourenstatus}
 
-In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist.
+In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
 
 ```{r status}
 #| label: fig-ausschreibungen-tourenstatus
-#| fig-cap: "Status der ausgeschriebenen Touren nach Jahr, nur Anlässe der Sektion (ohne Senioren)"
+#| fig-cap: "Status der ausgeschriebenen Touren nach Jahr, nur Anlässe der Sektion (ohne Senioren oder JO)"
 
 # NA zu anderem label ändern
 auss_total <- auss_total |>
   mutate(Status = ifelse(is.na(Status), "durchgeführt (keine Änderung)", Status))
 
 auss_total %>%
+  filter(jahr != 2023) |> 
   filter(Gruppe %in% c("Sektion")) %>%
   ggplot(aes(x = jahr, 
              fill = factor(Status))) +
