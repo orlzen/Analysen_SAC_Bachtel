@@ -73,7 +73,7 @@ Bei der Vorbereitung der Daten wird wie folgt vorgegangen:
 
     -   Die Variable "Gruppen" wird vereinfacht, da viele Anlässe für mehrere Gruppen gleichzeitig ausgeschrieben sind. So wurden z.B. Ausschreibungen, welche für "Sektion\|Senioren\|Frauen" angeboten waren, zu den Ausschreibungen der Sektion dazugezählt. So verbleiben am Ende noch Ausschreibungen für die Frauengruppe, die Jugend, die Seniorengruppe und die Sektion.
 
-6.  Die Datensätze aus Anmeldungen und Ausschreibungen werden anhand der Spalte `Aktivitaet` zusammengefügt
+6.  Die Datensätze aus Anmeldungen und Ausschreibungen können bei Bedarf zusammengefügt werden anhand der Informationen `Aktivitaet` (Name der Aktivität in DropTours), `Startdatum` und `Status`.
 
 7.  Einige Variablen müssen neu werden gebildet, da sie nicht enthalten sind in den Originaldaten von DropTours:
 
@@ -314,7 +314,12 @@ auss_total$Gruppe <- str_replace(auss_total$Gruppe, "Senioren\\|Frauen", "Senior
 ```
 
 ```{r Datensätze Anmeldungen & Ausschreibungen zusammenfügen}
-total <- merge(auss_total, anm_total)
+total <- left_join(anm_total, 
+                   auss_total,
+                   by = c("Aktivitaet" = "Aktivitaet", 
+                          "Startdatum" = "Startdatum", 
+                          "Status" = "Status",
+                          "jahr" = "jahr"))
 ```
 
 ## Übersicht Informationen {#sec-datenuebersicht}
@@ -721,7 +726,7 @@ anm_total %>%
 ```
 
 ```{r}
-#| label: fig-anmeldungen_2019-2022
+#| label: fig-anmeldungen_2019-2022 
 #| fig-cap: "Verlauf der Anmeldungen in den Jahren 2019 bis 2022 (Anzahl Anmeldungen pro Woche; alle Anlässe der Sektion)"
 
 
@@ -742,7 +747,7 @@ anm_total %>%
   labs(
     x = "Kalenderwoche", 
     y = "Anzahl Anmeldungen") +
-  geom_smooth() +
+  # geom_smooth() +
   facet_wrap(~jahr)
 ```
 
@@ -769,8 +774,10 @@ auss_total %>%
   scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
-    geom = "text", size = 3.5,
-    aes(label = ..count..), position = position_stack(vjust = 0.5)
+    geom = "text", 
+    size = 3.5,
+    aes(label = ..count..), 
+    position = position_stack(vjust = 0.5)
   )
 ```
 
@@ -842,6 +849,37 @@ auss_total %>%
   )
 ```
 
+### Ausschreibungen nach Gruppe
+
+@fig-ausschreibungen-pro-jahr-nach-gruppe zeigt die Anzahl Ausschreibungen nach Gruppe, wobei sich die Auflösung der Frauengruppe auf das Jahr 2022 zeigt.
+
+```{r gruppe}
+#| label: fig-ausschreibungen-pro-jahr-nach-gruppe
+#| fig-cap: "Ausgeschriebene Touren pro Gruppe nach Jahr"
+
+
+auss_total %>%
+  # filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
+  ggplot(aes(x = jahr, fill = factor(Gruppe)),
+    position = position_dodge(preserve = "single")
+  ) +
+  geom_bar(stat = "count") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Gruppe"
+  ) +
+  theme_minimal() +
+  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
+```
+
+
 ### Analyse der ausgeschriebenen Tourtypen der Sektion
 In @fig-ausschreibungen-pro-jahr-tourtyp-alle ist die Anzahl ausgeschriebener Anlässe der Sektion (ohne Seniorengruppe und JO) pro Jahr für die Jahre 2016 bis 2023 ersichtlich, wobei sich ein leichter Anstieg zeigt. Zu beachten ist, dass im Jahr 2023 noch ein paar wenige Zusatztouren hinzukommen könnten.
 
@@ -856,7 +894,7 @@ auss_total %>%
     position = position_dodge(preserve = "single")
   ) +
   geom_bar(stat = "count", fill = "grey") +
-  scale_fill_brewer(palette = "Set1") +
+  # scale_fill_brewer(palette = "Set1") +
   labs(
     x = "Jahr",
     y = "Anzahl Ausschreibungen",
@@ -971,39 +1009,9 @@ auss_total %>%
   )
 ```
 
-### Ausschreibungen nach Gruppe
-
-@fig-ausschreibungen-pro-jahr-nach-gruppe zeigt die Anzahl Ausschreibungen nach Gruppe, wobei sich die Auflösung der Frauengruppe auf das Jahr 2022 zeigt.
-
-```{r gruppe}
-#| label: fig-ausschreibungen-pro-jahr-nach-gruppe
-#| fig-cap: "Ausgeschriebene Touren pro Gruppe nach Jahr"
-
-
-auss_total %>%
-  # filter(Gruppe %in% c("Sektion", "Senioren", "Jugend")) %>%
-  ggplot(aes(x = jahr, fill = factor(Gruppe)),
-    position = position_dodge(preserve = "single")
-  ) +
-  geom_bar(stat = "count") +
-  scale_fill_brewer(palette = "Set1") +
-  labs(
-    x = "Jahr",
-    y = "Anzahl Ausschreibungen",
-    fill = "Gruppe"
-  ) +
-  theme_minimal() +
-  scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
-  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
-  stat_count(
-    geom = "text", colour = "white", size = 3.5,
-    aes(label = ..count..), position = position_stack(vjust = 0.5)
-  )
-```
-
 ### Status der Touren {#sec-tourenstatus}
 
-In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
+In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Der eher höhere Anteil der abgesagten Touren im Jahr 2022 dürfte primäer auf Sommertouren und auf die schlechten Schneeverhältnisse auf Gletschern zurückzuführen sein. Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
 
 ```{r status}
 #| label: fig-ausschreibungen-tourenstatus
