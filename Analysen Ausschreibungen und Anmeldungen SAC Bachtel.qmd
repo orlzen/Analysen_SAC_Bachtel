@@ -380,7 +380,7 @@ anm_total %>%
     x = "Jahr",
     y = "Anzahl Anmeldungen"
   ) +
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -407,7 +407,7 @@ anm_total %>%
     fill = "Geschlecht"
   ) +
   scale_fill_brewer(palette = "Set1") +
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000, 3500)) +
   stat_count(
     geom = "text", size = 3.5,
@@ -532,7 +532,7 @@ anm_total %>%
     stackdir = "center",
     binwidth = 0.2
   ) +
-  theme_minimal() +
+  theme_bw() +
   labs(
     x = "Geschlecht",
     y = "Alter der Anmeldungen"
@@ -557,7 +557,7 @@ anm_total %>%
     stackdir = "center",
     binwidth = 0.1
   ) +
-  theme_minimal() +
+  theme_bw() +
   labs(
     x = "Jahr",
     y = "Alter der Anmeldungen",
@@ -582,7 +582,7 @@ anm_total %>%
     stackdir = "center",
     binwidth = 0.2
   ) +
-  theme_minimal() +
+  theme_bw() +
   labs(
     x = "Jahr",
     y = "Alter der Anmeldungen",
@@ -610,7 +610,7 @@ anm_total %>%
   summarise(count = n()) %>%
   ggplot(aes(x = woche, y = count)) + 
   geom_line() + 
-  theme_minimal() +
+  theme_bw() +
   labs(
     x = "Kalenderwoche", 
     y = "Anzahl Anmeldungen"
@@ -634,7 +634,7 @@ anm_total <- anm_total |>
 ggplot(anm_total) +
   aes(x = woche_kont) +
   geom_bar(fill = "grey") +
-  theme_minimal() +
+  theme_bw() +
   scale_x_date(date_breaks = "3 months") +
   labs(
     x = "Wochenstart", 
@@ -662,7 +662,7 @@ anm_total %>%
   summarise(count = n()) %>%
   ggplot(aes(x = woche, y = count)) + 
   geom_line() + 
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(limits = c(0, 150)) +
   # scale_x_date(date_breaks = "1 year",
   #              date_labels = "%d %b %y") +
@@ -688,7 +688,7 @@ anm_total %>%
   summarise(count = n()) %>%
   ggplot(aes(x = woche, y = count)) + 
   geom_line() + 
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(limits = c(0, 150)) +
   # scale_x_date(date_breaks = "1 year",
   #              date_labels = "%d %b %y") +
@@ -714,7 +714,7 @@ anm_total %>%
   summarise(count = n()) %>%
   ggplot(aes(x = woche, y = count)) + 
   geom_line() + 
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(limits = c(0, 150)) +
   # scale_x_date(date_breaks = "1 year",
   #              date_labels = "%d %b %y") +
@@ -740,7 +740,7 @@ anm_total %>%
   summarise(count = n()) |> 
   ggplot(aes(x = woche, y = count)) + 
   geom_line() + 
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(limits = c(0, 150)) +
   # scale_x_date(date_breaks = "1 year",
   #              date_labels = "%d %b %y") +
@@ -770,7 +770,7 @@ auss_total %>%
     x = "Jahr",
     y = "Anzahl Ausschreibungen"
   ) +
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -795,7 +795,7 @@ auss_total %>%
     x = "Jahr",
     y = "Anzahl Ausschreibungen"
   ) +
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -817,7 +817,7 @@ auss_total %>%
     x = "Jahr",
     y = "Anzahl Ausschreibungen"
   ) +
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -840,7 +840,7 @@ auss_total %>%
     x = "Jahr",
     y = "Anzahl Ausschreibungen"
   ) +
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -870,7 +870,7 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Gruppe"
   ) +
-  theme_minimal() +
+  theme_bw() +
   scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -900,8 +900,8 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Tourtyp"
   ) +
-  theme_minimal() +
-  ylim(c(0, 250)) +
+  theme_bw() +
+  # ylim(c(0, 260)) +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -941,7 +941,7 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Tourtyp"
   ) +
-  theme_minimal() +
+  theme_bw() +
   ylim(c(0, 250)) +
   # scale_y_continuous(breaks = c(0, 50, 100, 150, 200, 250, 300, 350, 400, 450)) +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
@@ -974,7 +974,7 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Tourtyp"
   ) +
-  theme_minimal() +
+  theme_bw() +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
     geom = "text", colour = "white", size = 3.5,
@@ -1001,13 +1001,15 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Tourtyp"
   ) +
-  theme_minimal() +
+  theme_bw() +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
     geom = "text", colour = "white", size = 3.5,
     aes(label = ..count..), position = position_stack(vjust = 0.5)
   )
 ```
+
+### Status der Touren {#sec-tourenstatus}
 
 In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Der eher höhere Anteil der abgesagten Touren im Jahr 2022 dürfte primäer auf Sommertouren und auf die schlechten Schneeverhältnisse auf Gletschern zurückzuführen sein (siehe auch @fig-ausschreibungen-tourenstatus-tourtyp, wo der Tourtyp der abgesagten Ausschreibungen ersichtlich ist. Im Jahr 2022 lag die Anzahl abgesagter Hochtouren um einiges höher als in den Vorjahren (mit Ausnahme des Corona-Jahres 2020)). Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
 
@@ -1031,7 +1033,7 @@ auss_total %>%
     y = "Anzahl Ausschreibungen",
     fill = "Status"
   ) +
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
@@ -1060,7 +1062,7 @@ auss_total |>
     y = "Anzahl Ausschreibungen",
     fill = "Tourtyp"
   ) +
-  theme_minimal() +
+  theme_bw() +
   # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
   scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
   stat_count(
