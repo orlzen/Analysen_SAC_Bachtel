@@ -1009,9 +1009,7 @@ auss_total %>%
   )
 ```
 
-### Status der Touren {#sec-tourenstatus}
-
-In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Der eher höhere Anteil der abgesagten Touren im Jahr 2022 dürfte primäer auf Sommertouren und auf die schlechten Schneeverhältnisse auf Gletschern zurückzuführen sein. Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
+In @fig-ausschreibungen-tourenstatus ist der Tourenstatus der ausgeschriebenen Touren pro Jahr ersichtlich, wobei wiederum für das Corona-Jahr 2020 der hohe Anteil "abgesagt" ersichtlich ist. Der eher höhere Anteil der abgesagten Touren im Jahr 2022 dürfte primäer auf Sommertouren und auf die schlechten Schneeverhältnisse auf Gletschern zurückzuführen sein (siehe auch @fig-ausschreibungen-tourenstatus-tourtyp, wo der Tourtyp der abgesagten Ausschreibungen ersichtlich ist. Im Jahr 2022 lag die Anzahl abgesagter Hochtouren um einiges höher als in den Vorjahren (mit Ausnahme des Corona-Jahres 2020)). Auf die Darstellung des Jahres 2023 wurde hier verzichtet, da sich dies noch ändern kann.
 
 ```{r status}
 #| label: fig-ausschreibungen-tourenstatus
@@ -1032,6 +1030,35 @@ auss_total %>%
     x = "Jahr",
     y = "Anzahl Ausschreibungen",
     fill = "Status"
+  ) +
+  theme_minimal() +
+  # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
+  scale_x_continuous(breaks = c(2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023)) +
+  stat_count(
+    geom = "text", colour = "white", size = 3.5,
+    aes(label = ..count..), position = position_stack(vjust = 0.5)
+  )
+```
+
+
+```{r}
+#| label: fig-ausschreibungen-tourenstatus-tourtyp
+#| fig-cap: "Tourtyp der abgesagten Ausschreibungen nach Jahr, nur Anlässe der Sektion (ohne Senioren oder JO)"
+
+
+auss_total |> 
+  filter(jahr != 2023) |> 
+  filter(Gruppe %in% c("Sektion")) |> 
+  filter(!`Tourtyp lang` %in% "JO Skitour") |> 
+  filter(Status %in% "abgesagt") |> 
+  ggplot(aes(x = jahr,
+             fill = factor(`Tourtyp lang`))) +
+  geom_bar(stat = "count") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    x = "Jahr",
+    y = "Anzahl Ausschreibungen",
+    fill = "Tourtyp"
   ) +
   theme_minimal() +
   # scale_y_continuous(breaks=c(0, 10, 100, 150, 200, 250, 300, 350, 400, 450))  +
