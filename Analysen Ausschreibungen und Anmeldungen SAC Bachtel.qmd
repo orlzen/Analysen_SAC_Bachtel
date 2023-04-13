@@ -1,24 +1,4 @@
----
-title: "SAC Bachtel"
-subtitle: "Auswertung der Anmeldungen & Ausschreibungen"
-author: "Lorenz Biberstein"
-institute: "Tourenchef Sommer & Schneeschuhe"
-date: "`r Sys.time()`"
-date-format: medium
-title-block-banner: "grey"
-format: 
-  html:
-    embed-resources: true
-always_allow_html: true
-toc: true
-toc-depth: 5
-toc-title: "Inhalt"
-toc-location: left
-number-sections: true
-number-depth: 3
-lang: "de-DE"
-css: styles.css
----
+
 
 ```{r global setup}
 #| include = FALSE
