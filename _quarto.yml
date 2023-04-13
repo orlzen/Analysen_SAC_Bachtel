@@ -5,10 +5,12 @@ institute: "Tourenchef Sommer & Schneeschuhe"
 date: last-modified
 date-format: iso
 title-block-banner: "grey"
-format: 
+format:
   html:
     embed-resources: true
 always_allow_html: true
+# format: pdf
+# prefer-html: true
 toc: true
 toc-depth: 5
 toc-title: "Inhalt"
@@ -17,6 +19,3 @@ number-sections: true
 number-depth: 3
 lang: "de-DE"
 css: styles.css
-
-# format: docx
-# prefer-html: true
