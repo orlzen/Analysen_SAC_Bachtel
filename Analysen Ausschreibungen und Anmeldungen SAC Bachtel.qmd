@@ -1,5 +1,3 @@
-
-
 ```{r global setup}
 #| include = FALSE
 
@@ -307,7 +305,7 @@ total <- left_join(anm_total,
 Nach der Bereinigung und Aufbereitung der Daten stehen die folgenden Informationen zur Verfügung (@tbl-ausschreibungen-infos für die Informationen aus den Ausschreibungen, @tbl-anmeldungen-infos für die Informationen aus den Anmeldungen):
 
 | Name                      | Bemerkung                                                        |
-|----------------------|--------------------------------------------------|
+|-----------------------|-------------------------------------------------|
 | Aktivität                 | Name der Aktivität / Tour / Ausschreibung                        |
 | Startdatum                | Startdatum der Aktivität                                         |
 | Gruppe                    | Für welche Gruppe wurde die Aktivität ausgeschrieben?            |
@@ -321,7 +319,7 @@ Nach der Bereinigung und Aufbereitung der Daten stehen die folgenden Information
 : Übersicht Informationen aus Ausschreibungen {#tbl-ausschreibungen-infos}{tbl-colwidths="\[35,65\]"}
 
 | Name        | Bemerkung                                                     |
-|------------------|------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | Geschlecht  | Geschlecht des / der TN                                       |
 | Alter       | Alter des / der TN                                            |
 | PLZ         | Postleitzahl des / der TN                                     |
@@ -371,7 +369,7 @@ anm_total %>%
 
 ### Geschlecht
 
-In  @fig-anmeldungen-jahr-geschlecht sind die Anmeldungen nach Geschlecht getrennt. 
+In @fig-anmeldungen-jahr-geschlecht sind die Anmeldungen nach Geschlecht getrennt.
 
 ```{r Anmeldungen_Jahr_Geschlecht}
 #| label: fig-anmeldungen-jahr-geschlecht
@@ -492,8 +490,11 @@ knitr::kable(total %>%
 <!-- Das unterschiedliche Alter zwischen Männer und Frauen lässt sich auch in einer Abbildung visualisieren: @fig-altersverteilung-geschlecht zeigt die Altersverteilung der Anmeldungen nach Geschlecht als Baumdiagramm, wobei breitere Stellen auf mehr Personen in diesem Alter hinweisen, schmälere auf weniger Personen. Dabei wird ersichtlich, dass: -->
 
 <!-- -   Die Männer tendenziell länger an Sektionsanlässen teilnehmen (Spitze weiter oben) -->
+
 <!-- -   Frauen eher ein tieferes Durchschnittsalter aufweisen (breiteste Stelle ist weiter unten) -->
+
 <!-- -   Bei beiden Geschlechtern eine Häufung an Aktivitäten auftreten ca. im 55 Altersjahr, gefolgt von einem Rückgang ("Taille" ca. bei 60 Jahren), gefolgt von einem neuerlichen Anstieg nach der Pensionierung -->
+
 <!-- -   Sowohl bei den Männern als auch bei den Frauen sind die meisten Teilnehmer:innen zwischen 65 und 75 Jahre alt sind -->
 
 ```{r altersverteilung_geschlecht}
@@ -731,12 +732,67 @@ anm_total %>%
   facet_wrap(~jahr)
 ```
 
+### Anmeldungen von Einzelpersonen
+
+```{r}
+# Anzahl eindeutige Anmeldungen pro Jahr und Mitglied
+anm_unique_jahr_member <- anm_total |> 
+  group_by(TN_Kuerzel, jahr) |> 
+  summarise(freq = n()) |> 
+  arrange(desc(freq))
+
+# Anzahl eindeutige Anmeldungen insgesamt pro Mitglied
+anm_unique_member <- anm_total |> 
+  group_by(TN_Kuerzel) |> 
+  summarise(freq = n()) |> 
+  arrange(desc(freq))
+```
+
+Neben der Anzahl Anmeldungen kann auch analysiert werden, *wie viele einzelne* Anmeldungen eingegangen sind, d.h. wie viele *Personen* sich auf die Touren anmelden. Dies kann anhand der Variable `TN_Kuerzel` gemacht werden. In allen untersuchten Anmeldungen der Jahre 2016 bis 2022 verzeichnet die Person mit den meisten Anmeldungen `r max(anm_unique$freq)` Anmeldungen auf Anlässe der Sektion.[^1] In @tbl-max-anm-unique-jahr ist die höchste Anzahl der Anmeldungen von einer einzelnen Person pro Jahr ersichtlich. 
+
+[^1]: Aus Datenschutzgründen werden die Kürzel der betreffenden Personen nicht wiedergegeben.
+
+```{r}
+#| label: tbl-max-anm-unique-jahr
+#| tbl-cap: "Maximum der Anmeldungen von Einzelpersonen pro Jahr"
+
+
+# Anzahl eindeutige Anmeldungen pro Jahr
+knitr::kable(anm_unique_jahr_freq <- anm_total |> 
+  group_by(TN_Kuerzel, jahr) |> 
+  summarise(freq = n()) |> 
+  group_by(jahr) |> 
+  summarise(freq_max = max(freq)),
+  col.names = c("Jahr", "Max. Anmeldungen"),
+  align = "lc")
+```
+
+```{r}
+#| label: tbl-anm-unique-jahr
+#| tbl-cap: "Anzahl Anmeldungen von Einzelpersonen pro Jahr"
+
+
+# Anzahl eindeutige Anmeldungen pro Jahr
+knitr::kable(anm_total |> 
+  group_by(TN_Kuerzel, jahr) |> 
+  summarise(freq = n()) |> 
+  group_by(jahr) |> 
+  summarise(freq_unique = unique(freq)),
+  col.names = c("Jahr", "Anzahl eindeutige Anmeldungen"),
+  align = "lc")
+
+
+anm_uniqe_jahr <- anm_total |> 
+  group_by(jahr, TN_Kuerzel) |> 
+  summarise(freq_unique = nrow(unique(TN_Kuerzel)))
+```
+
 
 ## Analyse der Ausschreibungen
 
 ### Anzahl Ausschreibungen pro Jahr
 
-In @fig-ausschreibungen-pro-jahr ist die Anzahl *aller Ausschreibungen im Droptours* nach Jahr ersichtlich für die Jahre 2016 bis 2023. Es zeigt sich dabei, dass die Anzahl über die letzten Jahren stabil geblieben ist und ungefähr zwischen 400 und 440 Ausschreibungen schwankt. 
+In @fig-ausschreibungen-pro-jahr ist die Anzahl *aller Ausschreibungen im Droptours* nach Jahr ersichtlich für die Jahre 2016 bis 2023. Es zeigt sich dabei, dass die Anzahl über die letzten Jahren stabil geblieben ist und ungefähr zwischen 400 und 440 Ausschreibungen schwankt.
 
 ```{r ausschreibungen_jahr}
 #| label: fig-ausschreibungen-pro-jahr
@@ -859,8 +915,8 @@ auss_total %>%
   )
 ```
 
-
 ### Analyse der ausgeschriebenen Tourtypen der Sektion
+
 In @fig-ausschreibungen-pro-jahr-tourtyp-alle ist die Anzahl ausgeschriebener Anlässe der Sektion (ohne Seniorengruppe und JO) pro Jahr für die Jahre 2016 bis 2023 ersichtlich, wobei sich ein leichter Anstieg zeigt. Zu beachten ist, dass im Jahr 2023 noch ein paar wenige Zusatztouren hinzukommen könnten.
 
 ```{r}
@@ -889,7 +945,6 @@ auss_total %>%
     aes(label = ..count..), position = position_stack(vjust = 0.5)
   )
 ```
-
 
 <!-- Untersucht man die Anzahl Ausschreibungen differenzierter nach Tourtyp, zeigen sich doch die einen oder anderen Schwankungen. So ist z. B. die Anzahl ausgeschriebener Wanderungen seit 2019 stetig zurückgagangen, von `r count(auss_total %>% filter(jahr == 2019) %>% filter(Tourtyp == "W"))` über `r count(auss_total %>% filter(jahr == 2020) %>% filter(Tourtyp == "W"))` auf `r count(auss_total %>% filter(jahr == 2021) %>% filter(Tourtyp == "W"))`. Noch klarer zeigt sich das in @fig-ausschreibungen-pro-jahr-tourtyp-nur-wandern-sektion, wo nur die Touren des Ressorts Wandern abgebildet sind. -->
 
@@ -1021,7 +1076,6 @@ auss_total %>%
     aes(label = ..count..), position = position_stack(vjust = 0.5)
   )
 ```
-
 
 ```{r}
 #| label: fig-ausschreibungen-tourenstatus-tourtyp
