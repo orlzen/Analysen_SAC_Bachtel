@@ -787,10 +787,6 @@ anm_uniqe_jahr <- anm_total |>
   summarise(freq_unique = nrow(unique(TN_Kuerzel)))
 ```
 
-
-### Spezialfall Sektionsversammlung
-Die Sektionsversammlung ist die entscheidende Zusammenkunft der Sektionsmitglieder, wo das Budget und allgemeine Informationen präsentiert werden und alle zwei Jahre der Vorstand wieder- oder neugewählt wird. Umso relevanter wäre eine grosse Anwesenheit der Sektionsmitglieder an diesem Anlass.
-
 ## Analyse der Ausschreibungen
 
 ### Anzahl Ausschreibungen pro Jahr
