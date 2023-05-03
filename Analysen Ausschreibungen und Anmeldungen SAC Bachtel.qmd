@@ -741,6 +741,11 @@ anm_unique_jahr_member <- anm_total |>
   summarise(freq = n()) |> 
   arrange(desc(freq))
 
+## Alternative
+anm_unique_jahr_member_2 <- anm_total |> 
+  group_by(TN_Kuerzel, jahr) |> 
+  count()
+
 # Anzahl eindeutige Anmeldungen insgesamt pro Mitglied
 anm_unique_member <- anm_total |> 
   group_by(TN_Kuerzel) |> 
